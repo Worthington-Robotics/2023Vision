@@ -1,0 +1,3 @@
+[submodule "apriltags"]
+	path = apriltags
+	url = https://github.com/pupil-labs/apriltags.git
