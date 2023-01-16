@@ -52,10 +52,10 @@ if __name__ == "__main__":
         print(repr(status))
         exit()
     # Set configuration parameters
-    # init_params = sl.InitParameters()
-    # init_params.camera_resolution = sl.RESOLUTION.HD720 # Use HD720 video mode (default fps: 60)
-    # init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP # Use a right-handed Y-up coordinate system
-    # init_params.coordinate_units = sl.UNIT.METER # Set units in meters
+    init_params = sl.InitParameters()
+    init_params.camera_resolution = sl.RESOLUTION.VGA # Use HD720 video mode (default fps: 60)
+    init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP # Use a right-handed Y-up coordinate system
+    init_params.coordinate_units = sl.UNIT.METER # Set units in meters
 
     tracking_params = sl.PositionalTrackingParameters()
     zed.enable_positional_tracking(tracking_params)
@@ -71,9 +71,7 @@ if __name__ == "__main__":
     
     pose_data = sl.Transform()
 
-    automous = True
     start_time = time.time()
-    teleop = True
 
     text_translation = ""
     text_rotation = ""
@@ -91,8 +89,8 @@ if __name__ == "__main__":
                 #get april tag location
                 image = sl.Mat()
                 zed.retrieve_image(image, sl.VIEW.LEFT)
-                cv2.imshow("Feed", image.get_data())
-                cv2.waitKey(5)
+                #cv2.imshow("Feed", image.get_data())
+                #cv2.waitKey(5)
                 image_data = image.get_data()
                 image_data = cv2.cvtColor(image_data, cv2.COLOR_BGRA2GRAY)
                 tag_pose = detect.detect(img=image_data, estimate_tag_pose=True, camera_params=(focal_left_x,  focal_left_y, center_left_x, center_left_y), tag_size=.17145)
