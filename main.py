@@ -7,6 +7,7 @@ import numpy
 from pupil_apriltags import Detector
 from vision.zed_init import zed_init
 from vision.zed_params import *
+from vision.vision_processing import VisionProcessing
 
 
 def main():
@@ -21,10 +22,10 @@ def main():
 
     pose_data = sl.Transform()
 
-    detect = Detector()
+    detect = Detector(camera_pose)
 
     while True:
-        pass
+        VisionProcessing.track_position()
 
 
 if __name__ == "__main__":
