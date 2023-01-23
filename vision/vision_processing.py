@@ -5,13 +5,13 @@ from vision.constants import Constants
 from vision.zed_params import init_calibration_params
 
 
-class VisionProcessing():
+class VisionProcesser():
     def __init__(self, tag_detector: Detector, zed: sl.Camera):
         self.zed = zed
         self.detector = tag_detector
 
         
-    def track_position(self, camera_pose):
+    def track_position(self, camera_pose, zed):
         rotation = camera_pose.get_rotation_vector()
         py_translation = sl.Translation()
         translation = camera_pose.get_translation(py_translation)
@@ -21,7 +21,7 @@ class VisionProcessing():
         tx = round(camera_pose.get_translation(py_translation).get()[0], 3)
         ty = round(camera_pose.get_translation(py_translation).get()[1], 3)
         tz = round(camera_pose.get_translation(py_translation).get()[2], 3)
-        
+
         return [tx, ty, tz]
 
     def april_tag_tracking(self):

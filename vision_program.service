@@ -1,0 +1,8 @@
+[Unit]
+Description=Python Script that runs on startup
+
+[Service]
+ExecStart=/usr/bin/python3 ~/2023Vision/main.py
+
+[Install]
+WantedBy=multi-user.target

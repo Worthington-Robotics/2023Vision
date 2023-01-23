@@ -112,14 +112,15 @@ if __name__ == "__main__":
                 tx = round(camera_pose.get_translation(py_translation).get()[0], 3)
                 ty = round(camera_pose.get_translation(py_translation).get()[1], 3)
                 tz = round(camera_pose.get_translation(py_translation).get()[2], 3)
-                # print(tx)
+                print(tx)
                 if tag_pose:
                     for detection in tag_pose:
-                        print(f"id: {detection.tag_id}")
-                        # print(f"Pose t: {detection.pose_t}")
-                        print(f"Z: {detection.pose_t[2,0]}, X: {detection.pose_t[0,0]}, Y: {detection.pose_t[1, 0]}")
-                print(f"FPS: {1 / (time.time() - start_time)}")
-                start_time = time.time()
+                        pass
+                #         print(f"id: {detection.tag_id}")
+                #         # print(f"Pose t: {detection.pose_t}")
+                #         print(f"Z: {detection.pose_t[2,0]}, X: {detection.pose_t[0,0]}, Y: {detection.pose_t[1, 0]}")
+                # print(f"FPS: {1 / (time.time() - start_time)}")
+                # start_time = time.time()
             # viewer.updateData(pose_data, text_translation, text_rotation, tracking_state)
     
     
