@@ -1,2 +1,3 @@
-[SocketTables]
-url = https://github.com/maxwellpettit/SocketTables.git
+[submodule "SocketTable"]
+	path = SocketTable
+	url = https://github.com/maxwellpettit/SocketTables.git
