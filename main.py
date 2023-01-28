@@ -35,9 +35,8 @@ def main():
             tracking_state = zed.get_position(camera_pose)
             if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
                 tx, ty, tz = vision_processer.track_position(camera_pose, zed)
-                #test.print_robot_pose(tx, ty, tz)
                 tag_pose = vision_processer.april_tag_tracking()
-                test.print_tag_pose(tag_pose)
+                print(tag_pose)
         
 
 

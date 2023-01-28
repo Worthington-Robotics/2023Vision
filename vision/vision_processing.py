@@ -25,7 +25,7 @@ class VisionProcesser():
         return [tx, ty, tz]
 
     def april_tag_tracking(self):
-        calibration_params = init_calibration_params()
+        calibration_params = init_calibration_params(self.zed)
         image = sl.Mat()
         self.zed.retrieve_image(image, sl.VIEW.LEFT)
         image_data = image.get_data()
