@@ -7,8 +7,7 @@ import numpy
 from pupil_apriltags import Detector
 from vision.zed_init import zed_init
 from vision.zed_params import *
-from vision.vision_processing import VisionProcesser
-from xavier_testing import xavier_testing
+from vision.vision_processing import VisionProcesser 
 
 
 def main():
@@ -27,8 +26,6 @@ def main():
 
     vision_processer = VisionProcesser(detect, zed)
 
-    #delete before competition:
-    test = xavier_testing()
     
     while True:
         if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
