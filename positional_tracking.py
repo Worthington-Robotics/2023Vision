@@ -116,8 +116,8 @@ if __name__ == "__main__":
                 if tag_pose:
                     for detection in tag_pose:
                         pass
-                #         print(f"id: {detection.tag_id}")
-                #         # print(f"Pose t: {detection.pose_t}")
+                        # print(f"id: {detection.tag_id}")
+                        # print(f"Pose t: {detection.pose_t}")
                 #         print(f"Z: {detection.pose_t[2,0]}, X: {detection.pose_t[0,0]}, Y: {detection.pose_t[1, 0]}")
                 # print(f"FPS: {1 / (time.time() - start_time)}")
                 # start_time = time.time()

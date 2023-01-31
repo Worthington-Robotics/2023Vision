@@ -5,16 +5,18 @@ import sys
 import time
 import numpy
 from pupil_apriltags import Detector
-from vision.zed_init import zed_init
-from vision.zed_params import *
-from vision.vision_processing import VisionProcesser 
+from vision import VisionProcesser, zed_init, init_calibration_params, Dispatcher
+
 
 
 def main():
     zed = zed_init()
 
+    dispatcher = Dispatcher()
+
     runtime = sl.RuntimeParameters()
     camera_pose = sl.Pose()
+
 
     camera_params = init_calibration_params(zed)
 
@@ -33,7 +35,9 @@ def main():
             if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
                 tx, ty, tz = vision_processer.track_position(camera_pose, zed)
                 tag_pose = vision_processer.april_tag_tracking()
-                print(tag_pose)
+                dispatcher.dispatch_robot_pose(tx, ty, tz)
+                dispatcher.dispatch_tag_pose(tag_pose)
+                
         
 
 
