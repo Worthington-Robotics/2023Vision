@@ -30,10 +30,10 @@ def main():
 
     vision_processer = VisionProcesser(detect, zed)
 
-    start_time = time.time()
-    frame = 0
-
-    while time.time() - start_time < 60:
+    #start_time = time.time()
+    #frame = 0
+    #able to calculate robotpose 38 times a second?
+    while True:
         if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
             tracking_state = zed.get_position(camera_pose)
             if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
@@ -43,7 +43,7 @@ def main():
                 dispatcher.dispatch_robot_pose(tx, ty, tz)
                 dispatcher.dispatch_tag_pose(tag_pose)
     
-    print(frame/60)             
+    #print(frame/60)             
         
 
 
