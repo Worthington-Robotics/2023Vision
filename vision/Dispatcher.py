@@ -2,7 +2,7 @@ from networktables import NetworkTables
 
 class Dispatcher:
     def __init__(self):
-        NetworkTables.startClientTeam(4145)
+        NetworkTables.startClientTeam(4145, 1250)
         NetworkTables.initialize()
         self.sd = NetworkTables.getTable("SmartDashboard")
     def dispatch_robot_pose(self, tx, ty, tz):
