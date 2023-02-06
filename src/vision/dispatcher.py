@@ -37,6 +37,7 @@ class Dispatcher:
                 z = detection.pose_t[2, 0]
                 tagID = detection.tag_id
                 print(tagID)
+                print(detection.pose_R)
                 self.nt.putBoolean("Jetson/tag_pose/Updating", True)
                 self.nt.putNumber(f"Jetson/tag_pose/{tagID}/X", x)
                 self.nt.putNumber(f"Jetson/tag_pose/{tagID}/Y", y)

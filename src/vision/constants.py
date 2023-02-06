@@ -1,4 +1,5 @@
 from pyzed import sl
+import numpy as np
 
 
 class Constants:
@@ -15,3 +16,11 @@ class Constants:
     TAG_FAMILY = "tag16h5"
     # In inches
     TAG_SIZE = 6.5
+
+    ZED_CAMERA_OFFSET = .3938
+
+    T_F_A1 = np.array([[-1, 0, 0, 610.77/12], 
+                        [0, 1, 0, 42.19/12], 
+                        [0, 0, 0,  18.22/12], 
+                        [0, 0, 0, 1]])
+

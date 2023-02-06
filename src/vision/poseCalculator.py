@@ -7,7 +7,7 @@ class PoseCalculator:
     def __init__(self) -> None:
         pass
 
-    def translateZedPose(self, theta, points: np.ndarray):
+    def translateZedPose(self, theta, point: np.ndarray):
         """Translates points relative to the pose of the zed 
            to pose of the robot
         Args:
@@ -17,12 +17,20 @@ class PoseCalculator:
         Returns:
             translatedPose: pose of a tag relative to the robot
         """
-        rot_rz = np.array([[math.cos(theta), -math.sin(theta), 0],
-                           [math.sin(theta), math.cos(theta),  0],
-                           [0,               0,                1]])
-        p_rz = np.array([0, 0, Constants.ZED_HEIGHT]).T
-        translatedPose = np.add(np.matmul(rot_rz, points), p_rz)
 
+        t_z_zp = np.array([[1, 0, 0,                           0], 
+                           [0, 1, 0, Constants.ZED_CAMERA_OFFSET], 
+                           [0, 0, 1,                           0], 
+                           [0, 0, 0,                           1]])
+
+        t_zp_r = np.array([[math.cos(theta), -math.sin(theta), 0,                    0], 
+                           [math.sin(theta),  math.cos(theta), 0,                    0], 
+                           [              0,                0, 1, Constants.ZED_HEIGHT], 
+                           [              0,                0, 0,                    1]])
+
+        t_z_r = np.matmul(t_z_zp,  t_zp_r)
+
+        translatedPose = np.add(np.matmul(t_z_r[0:3, 0:3], point), t_z_r[0:3, -1])
         return translatedPose
 
     def getRobotPose(self, tagID):
