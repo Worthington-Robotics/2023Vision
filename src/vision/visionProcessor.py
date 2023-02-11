@@ -9,6 +9,7 @@ from pupil_apriltags import Detector
 from . import Constants, Dispatcher, PoseCalculator
 
 import cv2
+import math
 import numpy as np
 
 
@@ -68,6 +69,41 @@ class VisionProcessor:
         # Tag Tracking
         detections = self.getTagDetections()
 
+        theta = 0
+
+        num_april_tags = 0
+        average_tag_pose = np.zeros((1, 3))
+        average_yaw = 0
+        for detection in detections:
+            if(detection.hamming == 0):
+                # print(detection.pose_t)
+                t_z_a = np.array([[detection.pose_R[0,0], detection.pose_R[0,1], detection.pose_R[0,2], detection.pose_t[0][0] * 3.28084],
+                                  [detection.pose_R[1,0], detection.pose_R[1,1], detection.pose_R[1,2], detection.pose_t[1][0] * 3.28084],
+                                  [detection.pose_R[2,0], detection.pose_R[2,1], detection.pose_R[2,2], detection.pose_t[2][0] * 3.28084], 
+                                  [                    0,                     0,                     0,                   1]])
+                # print(t_z_a)
+                t_f_r = self.poseCalculator.getRobotTranslation(detection.tag_id, t_z_a, theta)
+                if(t_f_r is not None):
+                    np.add(average_tag_pose, t_f_r[0:3, 3])
+                    sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
+                    singular = sy < 1e-6
+                    # yaw = 0
+                    # if not singular :
+                    yaw = math.acos(t_f_r[0, 0])
+                    average_yaw += yaw
+                    num_april_tags += 1
+                    print(t_f_r[0, -1] * 12)
+                    # print(detection.tag_id)
+        if num_april_tags != 0:
+            tag_pose = np.divide(average_tag_pose, num_april_tags)
+            average_yaw /= num_april_tags
+            average_yaw = math.degrees(average_yaw)
+        else:
+            tag_pose = None
+            average_yaw = None
+        
+            
+        
         # Send data to SmartDashboard
         self.dispatcher.dispatchVIOPose(translatedVIO)
-        self.dispatcher.dispatchTagPose(detections)
+        self.dispatcher.dispatchTagPose(tag_pose, average_yaw)

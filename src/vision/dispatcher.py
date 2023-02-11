@@ -24,25 +24,17 @@ class Dispatcher:
         self.nt.putNumber("Jetson/robotpose/ty", ty)
         self.nt.putNumber("Jetson/robotpose/tz", tz)
 
-    def dispatchTagPose(self, pose):
+    def dispatchTagPose(self, pose, yaw):
         """Sends the pose of the robot based on tags to smartdashboard
         Args: 
             pose: pose of robot calculated from Apriltags (as Detection[]) 
         """
         # TODO Should only be one pose calculated from however many tags seen
-        if pose:
-            for detection in pose:
-                x = detection.pose_t[0, 0]
-                y = detection.pose_t[1, 0]
-                z = detection.pose_t[2, 0]
-                tagID = detection.tag_id
-                print(tagID)
-                print(detection.pose_R)
-                self.nt.putBoolean("Jetson/tag_pose/Updating", True)
-                self.nt.putNumber(f"Jetson/tag_pose/{tagID}/X", x)
-                self.nt.putNumber(f"Jetson/tag_pose/{tagID}/Y", y)
-                self.nt.putNumber(f"Jetson/tag_pose/{tagID}/Z", z)
-            print("---------------------------")
+        if pose is not None:
+            self.nt.putNumber("Jetson/AprilPose/x", pose[0][0])
+            self.nt.putNumber("Jetson/AprilPose/y", pose[0][1])
+            self.nt.putNumber("Jetson/AprilPose/z", pose[0][2])
+            self.nt.putNumber("Jetson/AprilPose/yaw", yaw)
         else:
             print("No Detection")
             self.nt.putBoolean("Jetson/tag_pose/Updating", False)
