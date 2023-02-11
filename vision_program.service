@@ -1,0 +1,10 @@
+[Unit]
+Description=Python Script that runs on startup
+
+[Service]
+Type=simple
+User=worbots4145
+ExecStart=/bin/bash /home/worbots4145/vision_program.sh
+
+[Install]
+WantedBy=multi-user.target
