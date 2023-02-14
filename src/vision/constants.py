@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Constants:
-    ZED_HEIGHT = 1.604167
+    ZED_HEIGHT = 3.25
 
     ZED_INIT_PARAMS = sl.InitParameters()
     # Use HD720 video mode (default fps: 60)

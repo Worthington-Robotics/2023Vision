@@ -45,7 +45,7 @@ class PoseCalculator:
             t_f_a = Constants.T_F_A5
         elif tagID == 6:
             t_f_a = Constants.T_F_A6
-        elif tagID == 7:
+        elif tagID == 7:  
             t_f_a = Constants.T_F_A7
         elif tagID == 8:
             t_f_a = Constants.T_F_A8
