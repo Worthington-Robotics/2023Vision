@@ -31,9 +31,9 @@ class Dispatcher:
         """
         # TODO Should only be one pose calculated from however many tags seen
         if pose is not None:
-            self.nt.putNumber("Jetson/AprilPose/x", pose[0][0])
-            self.nt.putNumber("Jetson/AprilPose/y", pose[0][1])
-            self.nt.putNumber("Jetson/AprilPose/z", pose[0][2])
+            self.nt.putNumber("Jetson/AprilPose/x", pose[0][0] * 3.28084)
+            self.nt.putNumber("Jetson/AprilPose/y", pose[0][1] * 3.28084)
+            self.nt.putNumber("Jetson/AprilPose/z", pose[0][2] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/yaw", yaw)
         else:
             print("No Detection")
