@@ -5,7 +5,7 @@ Description: This script
 ----------------------------------------------------------------------------
 """
 from pyzed import sl
-from pupil_apriltags import Detector
+from Apriltags import Detector
 from . import Constants, Dispatcher, PoseCalculator
 
 import cv2
@@ -58,10 +58,9 @@ class VisionProcessor:
 
         tagSizeInMeters = Constants.TAG_SIZE * 0.0254
 
-        detections = self.detctor.detect(
-            img=zedCVImg, estimate_tag_pose=True, camera_params=cameraParams, tag_size=tagSizeInMeters)
+        tag_detections = Detector(searchpath=['apriltags'], families='tag16h11', nthreads=1, quad_decimate=1.0, quad_sigma=0.0, refine_edges=1, decode_sharpening=0.25, debug=0)
 
-        return detections
+        return tag_detections
 
     def processVision(self):
         # Zed Tracking
