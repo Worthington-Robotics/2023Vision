@@ -77,9 +77,9 @@ class VisionProcessor:
         average_yaw = 0
         for detection in detections:
             if(detection.hamming == 0):
-                t_z_a = np.array([[detection.pose_R[0,0], detection.pose_R[0,1], detection.pose_R[0,2], detection.pose_t[0][0] * 3.28084],
-                                  [detection.pose_R[1,0], detection.pose_R[1,1], detection.pose_R[1,2], detection.pose_t[1][0] * 3.28084],
-                                  [detection.pose_R[2,0], detection.pose_R[2,1], detection.pose_R[2,2], detection.pose_t[2][0] * 3.28084], 
+                t_z_a = np.array([[detection.pose_R[0,0], detection.pose_R[0,1], detection.pose_R[0,2], detection.pose_t[0][0]],
+                                  [detection.pose_R[1,0], detection.pose_R[1,1], detection.pose_R[1,2], detection.pose_t[1][0]],
+                                  [detection.pose_R[2,0], detection.pose_R[2,1], detection.pose_R[2,2], detection.pose_t[2][0]], 
                                   [                    0,                     0,                     0,                   1]])
                 t_f_r = self.poseCalculator.getRobotTranslation(detection.tag_id, t_z_a, theta)
                 if(t_f_r is not None):
