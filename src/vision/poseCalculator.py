@@ -51,5 +51,6 @@ class PoseCalculator:
             t_f_a = Constants.T_F_A8
         else:
             return None
-        T_f_s = np.matmul(np.matmul(np.matmul(t_f_a, np.linalg.inv(t_z_a)), Constants.t_z_zp), self.get_zed_to_robot(theta))
-        return T_f_s
+        t_z_zp = np.matmul(Constants.t_z_zdp, Constants.t_z_zp)
+        T_f_r = np.matmul(np.matmul(np.matmul(t_f_a, np.linalg.inv(t_z_a)), Constants.t_z_zp), self.get_zed_to_robot(theta))
+        return T_f_r
