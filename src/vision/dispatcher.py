@@ -22,7 +22,6 @@ class Dispatcher:
         tx, ty, tz = position
         self.nt.putNumber("Jetson/robotpose/tx", tx)
         self.nt.putNumber("Jetson/robotpose/ty", ty)
-        self.nt.putNumber("Jetson/robotpose/tz", tz)
 
     def dispatchTagPose(self, pose, yaw):
         """Sends the pose of the robot based on tags to smartdashboard
@@ -35,6 +34,7 @@ class Dispatcher:
             self.nt.putNumber("Jetson/AprilPose/y", pose[0][1] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/z", pose[0][2] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/yaw", yaw)
+            print(yaw)
         else:
-            print("No Detection")
+            # print("No Detection")
             self.nt.putBoolean("Jetson/tag_pose/Updating", False)
