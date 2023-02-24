@@ -5,7 +5,7 @@ Description: This script
 ----------------------------------------------------------------------------
 """
 from pyzed import sl
-from Apriltags import Detector
+from dt_apriltags import Detector
 from . import Constants, Dispatcher, PoseCalculator
 
 import cv2
@@ -49,7 +49,7 @@ class VisionProcessor:
         zedCVImg = zedImg.get_data()
         cv2.imshow("img", zedCVImg)
         cv2.waitKey(5)
-        zedCVImg = cv2.cvtColor(zedCVImg, cv2.COLOR_BGR2GRAY)
+        zedCVImg = cv2.cvtColor(zedCVImg, cv2.COLOR_BGRA2GRAY)
 
         zedCameraParams = self.zed.get_camera_information(
         ).camera_configuration.calibration_parameters.left_cam
@@ -58,7 +58,7 @@ class VisionProcessor:
 
         tagSizeInMeters = Constants.TAG_SIZE * 0.0254
 
-        tag_detections = Detector(searchpath=['apriltags'], families='tag16h11', nthreads=1, quad_decimate=1.0, quad_sigma=0.0, refine_edges=1, decode_sharpening=0.25, debug=0)
+        tag_detections = self.detctor.detect(zedCVImg, True, cameraParams, tagSizeInMeters)
 
         return tag_detections
 
@@ -83,20 +83,20 @@ class VisionProcessor:
                                   [                    0,                     0,                     0,                   1]])
                 t_f_r = self.poseCalculator.getRobotTranslation(detection.tag_id, t_z_a, theta)
                 if(t_f_r is not None):
-                    np.add(average_tag_pose, t_f_r[0:3, 3])
-                    sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
-                    singular = sy < 1e-6
-                    # yaw = 0
-                    # if not singular :
-                    yaw = math.acos(t_f_r[0, 0])
+                    # print(t_f_r[0:3, 3])
+                    average_tag_pose = np.add(average_tag_pose, t_f_r[0:3, 3])
+                #     sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
+                    yaw = (math.acos(t_f_r[0, 0]) + math.acos(t_f_r[1, 1]) + math.asin(t_f_r[1, 0]) - math.asin(t_f_r[0, 1])) / 4
                     average_yaw += yaw
-                    num_april_tags += 1
-                    # print(t_f_r[0, -1] * 12)
-                    print(detection.tag_id)
+                num_april_tags += 1
+                #     # print(t_f_r[0, -1] * 12)
+                #     print(detection.tag_id)
         if num_april_tags != 0:
+            print(num_april_tags)
             tag_pose = np.divide(average_tag_pose, num_april_tags)
             average_yaw /= num_april_tags
             average_yaw = math.degrees(average_yaw)
+            # print(tag_pose)
         else:
             tag_pose = None
             average_yaw = None
