@@ -83,10 +83,12 @@ class VisionProcessor:
                                   [                    0,                     0,                     0,                   1]])
                 t_f_r = self.poseCalculator.getRobotTranslation(detection.tag_id, t_z_a, theta)
                 if(t_f_r is not None):
-                    # print(t_f_r[0:3, 3])
-                    average_tag_pose = np.add(average_tag_pose, t_f_r[0:3, 3])
-                #     sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
-                    yaw = (math.acos(t_f_r[0, 0]) + math.acos(t_f_r[1, 1]) + math.asin(t_f_r[1, 0]) - math.asin(t_f_r[0, 1])) / 4
+                    np.add(average_tag_pose, t_f_r[0:3, 3])
+                    sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
+                    singular = sy < 1e-6
+                    # yaw = 0
+                    # if not singular :
+                    yaw = math.acos(t_f_r[0, 0])
                     average_yaw += yaw
                 num_april_tags += 1
                 #     # print(t_f_r[0, -1] * 12)
