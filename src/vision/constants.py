@@ -22,24 +22,11 @@ class Constants:
     ZED_CAMERA_OFFSET = 0.12003468811511994
 
 
-<<<<<<< HEAD
-    t_z_zp = np.array([[ 1,  0,  0,  ZED_CAMERA_OFFSET], 
-                       [ 0,  math.cos(22),  -math.sin(22),                  0], 
-                       [ 0, math.sin(22),  math.cos(22),                  0], 
-                       [ 0,             0,  0,                  1]])
-    # #zed to zed double prime will account for the -22 degree angle in which the zed is at.
-    # #zed to zed prime and zed to zed double prime will remain seperate as of now for debugging purposes.
-    # t_z_zdp = np.array([[1,                        0,                       0, ZED_CAMERA_OFFSET],
-    #                    [0, math.cos(-22) * 57.2958, -math.sin(-22) * 57.2958,                 0],
-    #                    [0, math.sin(-22) * 57.2958,  math.cos(-22) * 57.2958,                 0],
-    #                    [0,                        0,                       0,                 1]])
-=======
     t_z_zp = np.array([[ 1,             0,             0,  ZED_CAMERA_OFFSET], 
                        [ 0,  math.cos(22), -math.sin(22),                  0], 
                        [ 0,  math.sin(22),  math.cos(22),                  0], 
                        [ 0,             0,             0,                  1]])
     
->>>>>>> b9c913a74c0e07644477cdabdc524f4291633b8a
     T_F_A1 = np.array([[ 0,  0, 1,  15.513558], 
                        [-1,  0, 0,   1.071626], 
                        [ 0, -1, 0,   0.462788], 
