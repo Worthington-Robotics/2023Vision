@@ -34,7 +34,8 @@ class Dispatcher:
             self.nt.putNumber("Jetson/AprilPose/y", pose[0][1] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/z", pose[0][2] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/yaw", yaw)
-            print(yaw)
+            print(pose[0][2] * 3.28084)
+            
         else:
             # print("No Detection")
             self.nt.putBoolean("Jetson/tag_pose/Updating", False)

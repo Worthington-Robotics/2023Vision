@@ -47,9 +47,7 @@ class VisionProcessor:
         zedImg = sl.Mat()
         self.zed.retrieve_image(zedImg, sl.VIEW.LEFT)
         zedCVImg = zedImg.get_data()
-        cv2.imshow("img", zedCVImg)
-        cv2.waitKey(5)
-        zedCVImg = cv2.cvtColor(zedCVImg, cv2.COLOR_BGRA2GRAY)
+        zedCVImg = cv2.cvtColor(zedCVImg, cv2.COLOR_BGR2GRAY)
 
         zedCameraParams = self.zed.get_camera_information(
         ).camera_configuration.calibration_parameters.left_cam
@@ -86,13 +84,14 @@ class VisionProcessor:
                     # print(t_f_r[0:3, 3])
                     average_tag_pose = np.add(average_tag_pose, t_f_r[0:3, 3])
                 #     sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
-                    yaw = (math.acos(t_f_r[0, 0]) + math.acos(t_f_r[1, 1]) + math.asin(t_f_r[1, 0]) - math.asin(t_f_r[0, 1])) / 4
+                    yaw = math.asin(t_f_r[0, 0])
                     average_yaw += yaw
                 num_april_tags += 1
                 #     # print(t_f_r[0, -1] * 12)
                 #     print(detection.tag_id)
+                # print(detection.pose_t)
         if num_april_tags != 0:
-            print(num_april_tags)
+            # print(num_april_tags)
             tag_pose = np.divide(average_tag_pose, num_april_tags)
             average_yaw /= num_april_tags
             average_yaw = math.degrees(average_yaw)

@@ -4,7 +4,7 @@ import cv2
 import sys
 import time
 import numpy
-from pupil_apriltags import Detector
+from dt_apriltags import Detector
 
 if __name__ == "__main__":
 
@@ -50,10 +50,19 @@ if __name__ == "__main__":
     start_time = time.time()
     teleop = True
 
+    keyPress = None
+
     text_translation = ""
     text_rotation = ""
-    detect = Detector()
-    while time.time() - start_time > 5:
+    detect = Detector(searchpath=['apriltags'],
+                       families='tag16h5',
+                       nthreads=1,
+                       quad_decimate=1.0,
+                       quad_sigma=0.0,
+                       refine_edges=1,
+                       decode_sharpening=0.25,
+                       debug=0)
+    while keyPress != ord('q'):
         if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
             tracking_state = zed.get_position(camera_pose)
             if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
@@ -61,20 +70,15 @@ if __name__ == "__main__":
                 image = sl.Mat()
                 zed.retrieve_image(image, sl.VIEW.LEFT)
                 image_data = image.get_data()
+                cv2.imshow("img", image_data)
+                keyPress = cv2.waitKey(5)
                 image_data = cv2.cvtColor(image_data, cv2.COLOR_BGRA2GRAY)
-                tag_pose = detect.detect(img=image_data, estimate_tag_pose=True, camera_params=(focal_left_x,  focal_left_y, center_left_x, center_left_y), tag_size=.17145)
+                tag_pose = detect.detect(img=image_data, estimate_tag_pose=True, camera_params=(focal_left_x,  focal_left_y, center_left_x, center_left_y), tag_size=0.2032)
                 #positional tracking
-                rotation = camera_pose.get_rotation_vector()
-                py_translation = sl.Translation()
-                translation = camera_pose.get_translation(py_translation)
-                text_rotation = str((round(rotation[0], 2), round(rotation[1], 2), round(rotation[2], 2)))
-                text_translation = str((round(translation.get()[0], 2), round(translation.get()[1], 2), round(translation.get()[2], 2)))
-                pose_data = camera_pose.pose_data(sl.Transform())
                 if tag_pose:
                     for detection in tag_pose:
-                        print(f"id: {detection.tag_id}")
-                        # print(f"Pose t: {detection.pose_t}")
-                        print(f"Z: {detection.pose_t[2,0]}, X: {detection.pose_t[0,0]}, Y: {detection.pose_t[1, 0]}")
+                        if detection.hamming == 0:
+                            print(f"Pose_T: {detection.pose_t[2][0]}")
             # viewer.updateData(pose_data, text_translation, text_rotation, tracking_state)
     print("Closing ZED")
     start_time = time.time()

@@ -4,20 +4,20 @@ import numpy as np
 
 
 class Constants:
-    ZED_HEIGHT = 3.25 * 0.3048
+    ZED_HEIGHT = 0.9398
 
     ZED_INIT_PARAMS = sl.InitParameters()
     # Use HD720 video mode (default fps: 60)
     ZED_INIT_PARAMS.camera_resolution = sl.RESOLUTION.VGA
     # Use a right-handed Z-up coordinate system
     ZED_INIT_PARAMS.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP_X_FWD
-    ZED_INIT_PARAMS.coordinate_units = sl.UNIT.FOOT  # Set units in feet
+    ZED_INIT_PARAMS.coordinate_units = sl.UNIT.METER  # Set units in meters
 
     # Apriltag constants
     TAG_FAMILY = "tag16h5"
     # In inches
     # actually tag is 6in x 6in
-    TAG_SIZE = 6
+    TAG_SIZE = 8
 
     ZED_CAMERA_OFFSET = 0.12003468811511994
 
@@ -69,5 +69,5 @@ class Constants:
 
     T_F_A8 = np.array([[0,  0, -1,   1.02743], 
                        [1,  0,  0,  1.071626], 
-                       [0, -1,  0,  0.462788], 
+                       [0, -1,  0,   0.56642], 
                        [0,  0,  0,         1]])
