@@ -34,7 +34,12 @@ class Dispatcher:
             self.nt.putNumber("Jetson/AprilPose/y", pose[0][1] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/z", pose[0][2] * 3.28084)
             self.nt.putNumber("Jetson/AprilPose/yaw", yaw)
-            print(pose[0][2] * 3.28084)
+             # Z is forwards,back X is Left,right Y is Up down
+            # print(pose[0][2] * 3.28084)
+            #forwards back
+            print(f"forwards: {pose[0][2] * 3.28084}")
+            #left right
+            print(f"left right: {pose[0][0] * 3.28084}")
             
         else:
             # print("No Detection")
