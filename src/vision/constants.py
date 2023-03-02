@@ -20,10 +20,10 @@ class Constants:
 
     ZED_CAMERA_OFFSET = 0.12003468811511994 
 
-    t_z_zp = np.array([[ 1,             0,             0,  ZED_CAMERA_OFFSET], 
-                       [ 0,  math.cos(22), -math.sin(22),                  0], 
-                       [ 0,  math.sin(22),  math.cos(22),                  0], 
-                       [ 0,             0,             0,                  1]])
+    t_z_zp = np.array([[ 1,                           0,                           0,  ZED_CAMERA_OFFSET], 
+                       [ 0,  math.cos(math.radians(22)), -math.sin(math.radians(22)),                  0], 
+                       [ 0,  math.sin(math.radians(22)),  math.cos(math.radians(22)),                  0], 
+                       [ 0,                           0,                           0,                  1]])
     
     T_F_A1 = np.array([[ 0,  0, 1,  15.513558], 
                        [-1,  0, 0,   1.071626], 
