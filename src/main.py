@@ -28,10 +28,12 @@ def main():
     visionProcessor.initializeZed()
     translation_left_to_center = zed.get_camera_information().calibration_parameters.T[0]
     print(translation_left_to_center)
+
     while True:
         if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
             tracking_state = zed.get_position(cameraPose)
             if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
+                counter+=1
                 visionProcessor.processVision()
 
 if __name__ == "__main__":

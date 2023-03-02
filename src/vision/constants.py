@@ -15,12 +15,10 @@ class Constants:
 
     # Apriltag constants
     TAG_FAMILY = "tag16h5"
-    # In inches
     # actually tag is 6in x 6in
     TAG_SIZE = 8
 
-    ZED_CAMERA_OFFSET = 0.12003468811511994
-
+    ZED_CAMERA_OFFSET = 0.12003468811511994 
 
     t_z_zp = np.array([[ 1,             0,             0,  ZED_CAMERA_OFFSET], 
                        [ 0,  math.cos(22), -math.sin(22),                  0], 
