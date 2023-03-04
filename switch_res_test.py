@@ -56,7 +56,7 @@ if __name__ == "__main__":
     text_rotation = ""
     detect = Detector(searchpath=['apriltags'],
                        families='tag16h5',
-                       nthreads=1,
+                       nthreads=4,
                        quad_decimate=1.0,
                        quad_sigma=0.0,
                        refine_edges=1,
@@ -73,12 +73,12 @@ if __name__ == "__main__":
                 cv2.imshow("img", image_data)
                 keyPress = cv2.waitKey(5)
                 image_data = cv2.cvtColor(image_data, cv2.COLOR_BGRA2GRAY)
-                tag_pose = detect.detect(img=image_data, estimate_tag_pose=True, camera_params=(focal_left_x,  focal_left_y, center_left_x, center_left_y), tag_size=0.2032)
+                tag_pose = detect.detect(img=image_data, estimate_tag_pose=True, camera_params=(focal_left_x,  focal_left_y, center_left_x, center_left_y), tag_size=0.1524)
                 #positional tracking
                 if tag_pose:
                     for detection in tag_pose:
                         if detection.hamming == 0:
-                            print(f"Pose_T: {detection.pose_t[2][0]}")
+                            print(f"Pose_T: {detection.pose_t}")
             # viewer.updateData(pose_data, text_translation, text_rotation, tracking_state)
     print("Closing ZED")
     start_time = time.time()

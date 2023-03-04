@@ -54,6 +54,7 @@ class VisionProcessor:
         cameraParams = (zedCameraParams.fx, zedCameraParams.fy,
                         zedCameraParams.cx, zedCameraParams.cy)
 
+
         tagSizeInMeters = Constants.TAG_SIZE * 0.0254
 
         tag_detections = self.detctor.detect(zedCVImg, True, cameraParams, tagSizeInMeters)
@@ -88,7 +89,7 @@ class VisionProcessor:
                     average_yaw += yaw
                 num_april_tags += 1
                 #     # print(t_f_r[0, -1] * 12)
-                #     print(detection.tag_id)
+                print(detection.tag_id)
                 # print(detection.pose_t)
         if num_april_tags != 0:
             # print(num_april_tags)

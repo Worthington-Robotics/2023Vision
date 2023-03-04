@@ -55,9 +55,14 @@ class PoseCalculator:
 
 
     def get_zed_to_robot(self, theta):
-        t_zp_r = np.array([[math.sin(math.radians(theta)),-math.cos(math.radians(theta)),  0,                    0], 
-                           [                            0,                             0, -1, Constants.ZED_HEIGHT], 
-                           [math.cos(math.radians(theta)), math.sin(math.radians(theta)),  0,                    0],
+        # t_zp_r = np.array([[0 , -math.sin(math.radians(theta)),  math.cos(math.radians(theta)),                    0], 
+        #                    [1, 0, 0, Constants.ZED_HEIGHT], 
+        #                    [0, 0,  -math.sin(math.radians(theta)),                    0],
+        #                    [                            0,                             0,  0,                    1]])
+
+        t_zp_r = np.array([[1 , 0,  0,                    0], 
+                           [0, 1, 0, Constants.ZED_HEIGHT], 
+                           [0, 0,  1,                    0],
                            [                            0,                             0,  0,                    1]])
         return t_zp_r
 
@@ -95,5 +100,9 @@ class PoseCalculator:
             t_f_a = Constants.T_F_A8
         else:
             return None
+
+        T_f_z = np.matmul(t_f_a, self.invert(t_z_a))
+        # print(self.get_zed_to_robot(theta))
+        print(np.matmul(T_f_z, Constants.t_z_zp))
         T_f_r = np.matmul(np.matmul(np.matmul(t_f_a, self.invert(t_z_a)), Constants.t_z_zp), self.get_zed_to_robot(theta))
         return T_f_r

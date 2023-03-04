@@ -4,11 +4,11 @@ import numpy as np
 
 
 class Constants:
-    ZED_HEIGHT = 0.9398
+    ZED_HEIGHT = 0.9779 # change to robot height when mounted
 
     ZED_INIT_PARAMS = sl.InitParameters()
     # Use HD720 video mode (default fps: 60)
-    ZED_INIT_PARAMS.camera_resolution = sl.RESOLUTION.VGA
+    ZED_INIT_PARAMS.camera_resolution = sl.RESOLUTION.HD720
     # Use a right-handed Z-up coordinate system
     ZED_INIT_PARAMS.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP_X_FWD
     ZED_INIT_PARAMS.coordinate_units = sl.UNIT.METER  # Set units in meters
@@ -16,13 +16,14 @@ class Constants:
     # Apriltag constants
     TAG_FAMILY = "tag16h5"
     # actually tag is 6in x 6in
-    TAG_SIZE = 8
+    TAG_SIZE = 6
 
-    ZED_CAMERA_OFFSET = 0.12003468811511994 
+    # 0.12003468811511994
+    ZED_CAMERA_OFFSET =  0.0635
 
     t_z_zp = np.array([[ 1,       0,       0,  ZED_CAMERA_OFFSET], 
-                       [ 0,  0.9272, -0.3746,                  0], 
-                       [ 0,  0.3746,  0.9272,                  0], 
+                       [ 0,  0.9271838546, 0.3746065934,                  0], 
+                       [ 0,  -0.3746065934,  0.9271838546,                  0], 
                        [ 0,       0,       0,                  1]])
     
     T_F_A1 = np.array([[ 0,  0, 1,  15.513558], 
@@ -39,7 +40,7 @@ class Constants:
 
     T_F_A3 = np.array([[ 0,  0, 1, 15.513558], 
                        [-1,  0, 0,  4.424426], 
-                       [ 0, -1, 0,  0.462788], 
+                       [ 0, -1, 0,  0.5842],  #change this value back to actual amount
                        [ 0,  0, 0,         1]])
 
 
