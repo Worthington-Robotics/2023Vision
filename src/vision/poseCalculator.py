@@ -55,10 +55,10 @@ class PoseCalculator:
 
 
     def get_zed_to_robot(self, theta):
-        t_zp_r = np.array([[math.sin(theta),-math.cos(theta),  0,                    0], 
-                           [              0,               0, -1, Constants.ZED_HEIGHT], 
-                           [math.cos(theta), math.sin(theta),  0,                    0],
-                           [              0,               0,  0,                    1]])
+        t_zp_r = np.array([[math.sin(math.radians(theta)),-math.cos(math.radians(theta)),  0,                    0], 
+                           [                            0,                             0, -1, Constants.ZED_HEIGHT], 
+                           [math.cos(math.radians(theta)), math.sin(math.radians(theta)),  0,                    0],
+                           [                            0,                             0,  0,                    1]])
         return t_zp_r
 
     def translateZedPose(self, theta, point: np.ndarray):
