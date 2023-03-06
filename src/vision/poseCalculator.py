@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+
+"""
+----------------------------------------------------------------------------
+Authors:     FRC Team 4145
+
+Description: This script uses duckie-town apriltags and the zed sdk to
+             process input from the Zed 2i Camera and publish certain values
+             to SmartDashboard. This script designed to be used on the 
+             Jetson Xavier.
+----------------------------------------------------------------------------
+"""
+
 import math
 import numpy as np
 from .constants import Constants
@@ -8,6 +21,10 @@ class PoseCalculator:
         pass
     
     def invert(self, m):
+        """This function finds the inverse of a given matrix
+        Args:
+            m: a matrix
+        """
         m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33 = np.ravel(m)
         a2323 = m22 * m33 - m23 * m32
         a1323 = m21 * m33 - m23 * m31

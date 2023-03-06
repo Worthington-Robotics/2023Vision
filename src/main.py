@@ -1,3 +1,21 @@
+#!/usr/bin/env python3
+
+"""
+-----------------------------------------------------------------------------
+Authors:     FRC Team 4145
+
+Description: This script uses duckie-town apriltags and the zed sdk to
+             process input from the Zed 2i Camera and publish certain values
+             to SmartDashboard. This script designed to be used on the 
+             Jetson Xavier.
+
+Comments:    This script should be uploaded to the Jetson xavier via Secure
+             Shell(ssh) by using the default IP address for the USB device
+             server. Upon doing this, one must then use Secure Copy Protocol
+             to move the files from a computer to the Jetson.
+-----------------------------------------------------------------------------
+"""
+
 from pyzed import sl
 from dt_apriltags import Detector
 from vision import VisionProcessor, Dispatcher, Constants, PoseCalculator
