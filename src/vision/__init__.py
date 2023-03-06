@@ -1,4 +1,4 @@
 from .constants import Constants
 from .poseCalculator import PoseCalculator
-from .dispatcher import Dispatcher
+from .connection import Connection
 from .visionProcessor import VisionProcessor

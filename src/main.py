@@ -1,6 +1,6 @@
 from pyzed import sl
 from dt_apriltags import Detector
-from vision import VisionProcessor, Dispatcher, Constants, PoseCalculator
+from vision import VisionProcessor, Connection, Constants, PoseCalculator
 import time
 
 
@@ -18,7 +18,7 @@ def main():
                        decode_sharpening=0.25,
                        debug=0)
 
-    dispatcher = Dispatcher(4145)
+    dispatcher = Connection(4145)
 
     poseCalculator = PoseCalculator()
 
@@ -29,10 +29,13 @@ def main():
     # translation_left_to_center = zed.get_camera_information().calibration_parameters.T[0]
 
     while True:
+        start = time.time()
         if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
             tracking_state = zed.get_position(cameraPose)
             if tracking_state == sl.POSITIONAL_TRACKING_STATE.OK:
                 visionProcessor.processVision()
+
+        print(f"FPS: {1 / (time.time() - start)}")
 
 if __name__ == "__main__":
     main()
