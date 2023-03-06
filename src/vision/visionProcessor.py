@@ -85,11 +85,11 @@ class VisionProcessor:
                     # print(t_f_r[0:3, 3])
                     average_tag_pose = np.add(average_tag_pose, t_f_r[0:3, 3])
                 #     sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
-                    yaw = math.asin(t_f_r[0, 0])
+                    yaw = math.acos(t_f_r[0, 0])
                     average_yaw += yaw
                 num_april_tags += 1
                 #     # print(t_f_r[0, -1] * 12)
-                print(detection.tag_id)
+                # print(detection.tag_id)
                 # print(detection.pose_t)
         if num_april_tags != 0:
             # print(num_april_tags)
