@@ -34,11 +34,13 @@ class Constants:
     # 0.12003468811511994
     ZED_CAMERA_OFFSET =  0.0635
 
+    #transformation matrix for zed to zed prime
     t_z_zp = np.array([[ 1,             0,            0,  ZED_CAMERA_OFFSET], 
                        [ 0,  0.9271838546, 0.3746065934,                  0], 
                        [ 0, -0.3746065934, 0.9271838546,                  0], 
                        [ 0,             0,            0,                  1]])
     
+    #Field to april tag matrices
     T_F_A1 = np.array([[ 0,  0, 1,  15.513558], 
                        [-1,  0, 0,   1.071626], 
                        [ 0, -1, 0,   0.462788], 
