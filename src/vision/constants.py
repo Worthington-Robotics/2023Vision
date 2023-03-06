@@ -11,7 +11,7 @@ class Constants:
     ZED_INIT_PARAMS.camera_resolution = sl.RESOLUTION.HD720
     # Use a right-handed Z-up coordinate system
     ZED_INIT_PARAMS.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP_X_FWD
-    ZED_INIT_PARAMS.coordinate_units = sl.UNIT.METER  # Set units in meters
+    ZED_INIT_PARAMS.coordinate_units = sl.UNIT.FOOT  # Set units in meters
 
     # Apriltag constants
     TAG_FAMILY = "tag16h5"
