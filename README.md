@@ -6,7 +6,7 @@ https://www.stereolabs.com/docs/
 
 ## Vision Processign Algorithm
 ```mermaid
-flowchart Algorithm
+flowchart TD
     A[Vision Program Starts] --> B[Initialize Zed]
     B --> C{If runtime == success and tracking_state == OK}
     C -- No --> D[Vision Program Stops]
