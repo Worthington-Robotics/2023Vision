@@ -8,7 +8,7 @@ https://www.stereolabs.com/docs/
 ```mermaid
 flowchart TD
     A[Vision Program Starts] --> B[Initialize Zed]
-    B --> C{If runtime == success and tracking_state == OK}
+    B --> C[If runtime == success and tracking_state == OK]
     C -- No --> D[Vision Program Stops]
     C -- Yes -->E[Track distance from starting point]
     C -- Yes -->F[Find apriltags]
@@ -16,7 +16,7 @@ flowchart TD
     F -- Apriltags Found --> H[Is hamming equal to zero?]
     H -- No --> I[Do nothing]
     H -- Yes --> J[Calculate pose and yaw]
-    E --> K[Publish VIO pose]
+    E --> K[Pulish VIO pose]
     J --> L[Publish pose and yaw]
 
 ```
