@@ -2,6 +2,7 @@
 This repository contains python scripts that use duckie-town apriltags and the zed sdk and run on a Jetson Xavier
 
 https://github.com/duckietown/lib-dt-apriltags
+
 https://www.stereolabs.com/docs/
 
 ## Vision Processign Algorithm
@@ -85,6 +86,11 @@ Then the files can be moved between the two systems using Secure Copy Protocol
 scp -r .\Path_To_Code\ user@192.168.xxx.xxx:~
 ```
 The tilda can be replaced by the directory in which the user would like the repository to be copied to
+
+Ex:
+```
+scp -r .\Path_To_Code\ user@192.168.xxx.xxx:~/filepath/
+```
 
 
 
