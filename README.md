@@ -25,25 +25,34 @@ flowchart TD
 The scripts in this program use extremely basic linear algebra.
 
 Equation for finding robot pose:
-T_F_R = T_F_A * -1T_Z_A * T_Z_ZP * T_ZP_R
+T<sub>F_R</sub> = T<sub>F_A</sub> * T<sup>-1</sup><sub>Z_A</sub> * T<sub>Z_ZP</sub> * T<sub>ZP_R</sub>
 
 The T in each matrix simply means transformation.
-T_F_R = Tranformation matrix of field to robot also know as pose
-T_F_A = Transformation matrix of field to apriltag also know as the location of an apriltag
--1T_Z_A = the inverse of the matrix of zed to apriltag
-T_Z_ZP = The zed on the robot will be mounted at a negative 20 degree angle. This translation matrix will acount for that
-T_ZP_R = Transformation matrix of the zed position of the robot to the center of the robot. This is so that the everything calculated will be relative to the center of the robot.
+
+T<sub>F_R</sub> = Tranformation matrix of field to robot also know as pose
+
+T<sub>F_A</sub> = Transformation matrix of field to apriltag also know as the location of an apriltag
+
+T<sup>-1</sup><sub>Z_A </sub>= the inverse of the matrix of zed to apriltag
+
+T<sub>Z_ZP</sub> = The zed on the robot will be mounted at a negative 20 degree angle. This translation matrix will acount for that
+
+T<sub>ZP_R</sub> = Transformation matrix of the zed position of the robot to the center of the robot. This is so that the everything calculated will be relative to the center of the robot.
 
 Further math explanation:
-1. -1T_Z_A = T_A_Z
-   T_F_A * T_A_Z = T_F_Z
+1. T<sup>-1</sup><sub>Z_A</sub> = T<sub>A_Z</sub>
+
+   T<sub>F_A</sub> * T<sub>A_Z</sub> = T<sub>F_Z</sub>
+
    The As cancel out a lot like train track multiplication. When multiplied together, these matrices now represent a transformation matrix of field to zed.
 
-2. T_F_Z * T_Z_ZP = T_F_ZP
+2. T<sub>F_Z</sub> * T<sub>Z_ZP</sub> = T<sub>F_ZP</sub>
+
    The Zs cancel out so now the new transfomration matrix represents field to zed prime
+
    the word prime is added to something to show that something has been translated or rotated.
 
-3. T_F_ZP * T_ZP_R = T_F_R
+3. T<sub>F_ZP</sub> * T<sub>ZP_R</sub> = T<sub>F_R</sub>
    the ZPs cancel out to get the pose.
 
 ## Prerequisites
