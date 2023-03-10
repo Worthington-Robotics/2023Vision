@@ -1,7 +1,13 @@
+#!/usr/bin/env python3
+
 """
 ----------------------------------------------------------------------------
 Authors:     FRC Team 4145
-Description: This script 
+
+Description: This script uses duckie-town apriltags and the zed sdk to
+             process input from the Zed 2i Camera and publish certain values
+             to SmartDashboard. This script designed to be used on the 
+             Jetson Xavier.
 ----------------------------------------------------------------------------
 """
 from pyzed import sl

@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+
+"""
+----------------------------------------------------------------------------
+Authors:     FRC Team 4145
+
+Description: This script uses duckie-town apriltags and the zed sdk to
+             process input from the Zed 2i Camera and publish certain values
+             to SmartDashboard. This script designed to be used on the 
+             Jetson Xavier.
+----------------------------------------------------------------------------
+"""
+
 from pyzed import sl
 import math
 import numpy as np
@@ -26,21 +39,22 @@ class Constants:
                        [ 0,  0.3746065934,  0.9271838546,                  0], 
                        [ 0,       0,       0,                  1]])
     
+    #Field to april tag matrices
     T_F_A1 = np.array([[ 0,  0, 1,  15.513558], 
                        [-1,  0, 0,   1.071626], 
                        [ 0, -1, 0,   0.462788], 
                        [ 0,  0, 0,          1]])
 
 
-    T_F_A2 = np.array([[0, 0, 1, 15.513558], 
-                       [-1, 0, 0, 2.748026], 
-                       [0, -1, 0, 0.462788], 
-                       [0, 0, 0, 1]])
+    T_F_A2 = np.array([[0,  0, 1, 15.513558], 
+                       [-1, 0, 0,  2.748026], 
+                       [0, -1, 0,  0.462788], 
+                       [0,  0, 0,         1]])
 
 
     T_F_A3 = np.array([[ 0,  0, 1, 15.513558], 
                        [-1,  0, 0,  4.424426], 
-                       [ 0, -1, 0,  0.5842],  #change this value back to actual amount
+                       [ 0, -1, 0,    0.5842],  #change this value back to actual amount
                        [ 0,  0, 0,         1]])
 
 
