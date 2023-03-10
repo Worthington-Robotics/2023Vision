@@ -19,41 +19,42 @@ flowchart TD
     H -- Yes --> J[Calculate pose and yaw]
     E --> K[Pulish VIO pose]
     J --> L[Publish pose and yaw]
-
+    L --> C
+    K --> C
 ```
-
 ## Math
 The scripts in this program use extremely basic linear algebra.
 
 Equation for finding robot pose:
-T<sub>F_R</sub> = T<sub>F_A</sub> * T<sup>-1</sup><sub>Z_A</sub> * T<sub>Z_ZP</sub> * T<sub>ZP_R</sub>
+T<sub>F,R</sub> = T<sub>F,A</sub> * T<sub>Z,A</sub><sup>-1</sup> * T<sub>Z,ZP</sub> * T<sub>ZP,R</sub>
 
 The T in each matrix simply means transformation.
 
-T<sub>F_R</sub> = Tranformation matrix of field to robot also know as pose
+T<sub>F,R</sub> = Tranformation matrix of field to robot also know as pose
 
-T<sub>F_A</sub> = Transformation matrix of field to apriltag also know as the location of an apriltag
+T<sub>F,A</sub> = Transformation matrix of field to apriltag also know as the location of an apriltag
 
-T<sup>-1</sup><sub>Z_A </sub>= the inverse of the matrix of zed to apriltag
+T<sub>Z,A </sub><sup>-1</sup> = the inverse of the matrix of zed to apriltag
 
-T<sub>Z_ZP</sub> = The zed on the robot will be mounted at a negative 20 degree angle. This translation matrix will acount for that
+T<sub>Z,ZP</sub> = The zed on the robot will be mounted at a negative 20 degree angle. This translation matrix will acount for that
 
-T<sub>ZP_R</sub> = Transformation matrix of the zed position of the robot to the center of the robot. This is so that the everything calculated will be relative to the center of the robot.
+T<sub>ZP,R</sub> = Transformation matrix of the zed position of the robot to the center of the robot. This is so that the everything calculated will be relative to the center of the robot.
 
 Further math explanation:
-1. T<sup>-1</sup><sub>Z_A</sub> = T<sub>A_Z</sub>
+1. T<sub>Z,A</sub><sup>-1</sup> = T<sub>A,Z</sub>
 
-   T<sub>F_A</sub> * T<sub>A_Z</sub> = T<sub>F_Z</sub>
+   T<sub>F,A</sub> * T<sub>A,Z</sub> = T<sub>F,Z</sub>
 
    The As cancel out a lot like train track multiplication. When multiplied together, these matrices now represent a transformation matrix of field to zed.
 
-2. T<sub>F_Z</sub> * T<sub>Z_ZP</sub> = T<sub>F_ZP</sub>
+2. T<sub>F,Z</sub> * T<sub>Z,ZP</sub> = T<sub>F,ZP</sub>
 
    The Zs cancel out so now the new transfomration matrix represents field to zed prime
 
    the word prime is added to something to show that something has been translated or rotated.
 
-3. T<sub>F_ZP</sub> * T<sub>ZP_R</sub> = T<sub>F_R</sub>
+3. T<sub>F,ZP</sub> * T<sub>ZP,R</sub> = T<sub>F,R</sub>
+
    the ZPs cancel out to get the pose.
 
 ## Prerequisites
