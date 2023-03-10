@@ -34,10 +34,10 @@ class Constants:
     # 0.12003468811511994
     ZED_CAMERA_OFFSET =  0.0635
 
-    t_z_zp = np.array([[ 1,       0,       0,  ZED_CAMERA_OFFSET], 
+    t_z_zp = np.array([[ 1,             0,             0,  ZED_CAMERA_OFFSET], 
                        [ 0,  0.9271838546, -0.3746065934,                  0], 
                        [ 0,  0.3746065934,  0.9271838546,                  0], 
-                       [ 0,       0,       0,                  1]])
+                       [ 0,             0,             0,                  1]])
     
     #Field to april tag matrices
     T_F_A1 = np.array([[ 0,  0, 1,  15.513558], 
@@ -54,7 +54,7 @@ class Constants:
 
     T_F_A3 = np.array([[ 0,  0, 1, 15.513558], 
                        [-1,  0, 0,  4.424426], 
-                       [ 0, -1, 0,    0.5842],  #change this value back to actual amount
+                       [ 0, -1, 0,  0.462788],
                        [ 0,  0, 0,         1]])
 
 
@@ -72,7 +72,7 @@ class Constants:
 
     T_F_A6 = np.array([[0,  0, -1,   1.02743], 
                        [1,  0,  0,  4.424426], 
-                       [0, -1,  0,  0.5334], #CHANGE BACK
+                       [0, -1,  0,  0.462788],
                        [0,  0,  0,         1]])
 
     T_F_A7 = np.array([[0,  0, -1,   1.02743], 

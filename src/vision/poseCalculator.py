@@ -72,11 +72,6 @@ class PoseCalculator:
 
 
     def get_zed_to_robot(self, theta):
-        # t_zp_r = np.array([[0 , -math.sin(math.radians(theta)),  math.cos(math.radians(theta)),                    0], 
-        #                    [1, 0, 0, Constants.ZED_HEIGHT], 
-        #                    [0, 0,  -math.sin(math.radians(theta)),                    0],
-        #                    [                            0,                             0,  0,                    1]])
-
         t_zp_r = np.array([[math.sin(math.radians(theta)), -math.cos(math.radians(theta)), 0, 0], 
                            [0, 0, -1, Constants.ZED_HEIGHT],
                            [math.cos(math.radians(theta)), math.sin(math.radians(theta)), 0, 0],
@@ -106,6 +101,8 @@ class PoseCalculator:
             represents the the location of the apriltag relative
             to the zed
             theta: turret angle from zero
+        Returns:
+            Pose
         """
         if tagID == 1:
             t_f_a = Constants.T_F_A1

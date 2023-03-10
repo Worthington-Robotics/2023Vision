@@ -44,7 +44,6 @@ def main():
         detector=detector, zed=zed, dispatcher=dispatcher, poseCalculator=poseCalculator, cameraPose=cameraPose)
         
     visionProcessor.initializeZed()
-    # translation_left_to_center = zed.get_camera_information().calibration_parameters.T[0]
 
     while True:
         start = time.time()
