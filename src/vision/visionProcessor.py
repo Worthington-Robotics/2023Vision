@@ -12,7 +12,7 @@ Description: This script uses duckie-town apriltags and the zed sdk to
 """
 from pyzed import sl
 from dt_apriltags import Detector
-from . import Constants, Dispatcher, PoseCalculator
+from . import Constants, Connection, PoseCalculator
 
 import cv2
 import math
@@ -20,10 +20,10 @@ import numpy as np
 
 
 class VisionProcessor:
-    def __init__(self, zed: sl.Camera, detector: Detector, dispatcher: Dispatcher, poseCalculator: PoseCalculator, cameraPose):
+    def __init__(self, zed: sl.Camera, detector: Detector, dispatcher: Connection, poseCalculator: PoseCalculator, cameraPose):
         self.zed = zed
         self.detctor = detector
-        self.dispatcher = dispatcher
+        self.connection = dispatcher
         self.poseCalculator = poseCalculator
         self.cameraPose = cameraPose
         pass
@@ -75,7 +75,7 @@ class VisionProcessor:
         # Tag Tracking
         detections = self.getTagDetections()
 
-        theta = 0
+        turret_angle = self.connection.getTurretAngle()
 
         num_april_tags = 0
         average_tag_pose = np.zeros((1, 3))
@@ -86,16 +86,16 @@ class VisionProcessor:
                                   [detection.pose_R[1,0], detection.pose_R[1,1], detection.pose_R[1,2], detection.pose_t[1][0]],
                                   [detection.pose_R[2,0], detection.pose_R[2,1], detection.pose_R[2,2], detection.pose_t[2][0]], 
                                   [                    0,                     0,                     0,                   1]])
-                t_f_r = self.poseCalculator.getRobotTranslation(detection.tag_id, t_z_a, theta)
+                t_f_r = self.poseCalculator.getRobotTranslation(detection.tag_id, t_z_a, turret_angle)
                 if(t_f_r is not None):
                     # print(t_f_r[0:3, 3])
                     average_tag_pose = np.add(average_tag_pose, t_f_r[0:3, 3])
                 #     sy = math.sqrt(t_f_r[0,0] * t_f_r[0,0] +  t_f_r[1,0] * t_f_r[1,0])
-                    yaw = math.asin(t_f_r[0, 0])
+                    yaw = math.acos(t_f_r[0, 0])
                     average_yaw += yaw
                 num_april_tags += 1
                 #     # print(t_f_r[0, -1] * 12)
-                print(detection.tag_id)
+                # print(detection.tag_id)
                 # print(detection.pose_t)
         if num_april_tags != 0:
             # print(num_april_tags)
@@ -110,5 +110,5 @@ class VisionProcessor:
             
         
         # Send data to SmartDashboard
-        self.dispatcher.dispatchVIOPose(translatedVIO)
-        self.dispatcher.dispatchTagPose(tag_pose, average_yaw)
+        self.connection.dispatchVIOPose(translatedVIO)
+        self.connection.dispatchTagPose(tag_pose, average_yaw)
