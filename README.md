@@ -76,6 +76,18 @@ install Networktables
 ```
 pip install pynetworktables
 ```
+
+Instead of installing everything manually, the setup script could be run to install all dependencies. This script is found in the scripts folder.
+
+make the script executable
+```
+chmod +x setup.sh
+```
+
+run the script
+```
+./setup.sh
+```
 ## Setup
 In order to get the repo on the xavier, connect a computer to the xavier using the default IP address for the USB device 
 server.
