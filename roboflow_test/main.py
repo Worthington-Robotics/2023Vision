@@ -9,7 +9,7 @@ import cv2
 import pyzed.sl as sl
 import torch.backends.cudnn as cudnn
 
-sys.path.insert(0, './zed_detect/zed_detect/yolov5')
+sys.path.insert(0, './yolov5')
 from models.experimental import attempt_load
 from utils.general import check_img_size, non_max_suppression, scale_coords, xyxy2xywh
 from utils.torch_utils import select_device
