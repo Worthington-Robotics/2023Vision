@@ -1,109 +1,24 @@
-# 2023Vision
-This repository contains python scripts that use duckie-town apriltags and the zed sdk and run on a Jetson Xavier
+# frcsummerprojects-vision
 
-https://github.com/duckietown/lib-dt-apriltags
+Vision projects for the 2023-2024 summer.
 
-https://www.stereolabs.com/docs/
+Installation:  
+- Use `pip install -r ./setup/requirements.txt` to automatically install all of the dependencies above.
 
-## Vision Processign Algorithm
-```mermaid
-flowchart TD
-    A[Vision Program Starts] --> B[Initialize Zed]
-    B --> C[If runtime == success and tracking_state == OK]
-    C -- No --> D[Vision Program Stops]
-    C -- Yes -->E[Track distance from starting point]
-    C -- Yes -->F[Find apriltags]
-    F -- No Apriltags Found --> G[Do nothing]
-    F -- Apriltags Found --> H[Is hamming equal to zero?]
-    H -- No --> I[Do nothing]
-    H -- Yes --> J[Calculate pose and yaw]
-    E --> K[Pulish VIO pose]
-    J --> L[Publish pose and yaw]
-    L --> C
-    K --> C
-```
-## Math
-The scripts in this program use extremely basic linear algebra.
+Dependencies:
+- OpenCV `pip install opencv-contrib-python`, build on version 4.8.0.74
+- Robot Py `pip install robotpy`
+- Python NetworkTables `pip install pyntcore`
 
-Equation for finding robot pose:
-T<sub>F,R</sub> = T<sub>F,A</sub> * T<sub>Z,A</sub><sup>-1</sup> * T<sub>Z,ZP</sub> * T<sub>ZP,R</sub>
+Description:  
+This code uses OpenCV's built in ArUco library for detecting AprilTags. This was chosen over other libraries due to its flexibility and customization abilities.  
+The board.jpg is the ChArUco board that is used to calibrate the camera. The Checker width is 24mm, and the Marker width is 19mm. This is crucial to the calibration of the camera. It is also crucial to keep it flat while calibrating. RobotPy/PyNtCore are used for NetworkTables 4.0, as well as bringing WPI types to our code. [Here](https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2023-chargedup.json) is a link to the current field layout as a .json file.
 
-The T in each matrix simply means transformation.
+Knowledge:  
+Euler angles are the standard, pitch, roll, and yaw.  
+Quaternions are fancy ways to describe Euler angles.  
+Rotation matricies are 3d ways to represent rotation.  
+ALL ARE INTERCHANGABLE. A great website is [here](https://www.brainvoyager.com/bv/doc/UsersGuide/CoordsAndTransforms/SpatialTransformationMatrices.html).
 
-T<sub>F,R</sub> = Tranformation matrix of field to robot also know as pose
-
-T<sub>F,A</sub> = Transformation matrix of field to apriltag also know as the location of an apriltag
-
-T<sub>Z,A </sub><sup>-1</sup> = the inverse of the matrix of zed to apriltag
-
-T<sub>Z,ZP</sub> = The zed on the robot will be mounted at a negative 20 degree angle. This translation matrix will acount for that
-
-T<sub>ZP,R</sub> = Transformation matrix of the zed position of the robot to the center of the robot. This is so that the everything calculated will be relative to the center of the robot.
-
-Further math explanation:
-1. T<sub>Z,A</sub><sup>-1</sup> = T<sub>A,Z</sub>
-
-   T<sub>F,A</sub> * T<sub>A,Z</sub> = T<sub>F,Z</sub>
-
-   The As cancel out a lot like train track multiplication. When multiplied together, these matrices now represent a transformation matrix of field to zed.
-
-2. T<sub>F,Z</sub> * T<sub>Z,ZP</sub> = T<sub>F,ZP</sub>
-
-   The Zs cancel out so now the new transfomration matrix represents field to zed prime
-
-   the word prime is added to something to show that something has been translated or rotated.
-
-3. T<sub>F,ZP</sub> * T<sub>ZP,R</sub> = T<sub>F,R</sub>
-
-   the ZPs cancel out to get the pose.
-
-## Prerequisites
-In order to use these scripts, the Zed SDK, duckietown apriltags, numpy, opencv, and RobotPy NetworkTables must be installed on the device or computer that will be using them.
-
-They can be installed by running the commands:
-
-install numpy
-```
-pip install numpy
-```
-
-install opencv
-```
-pip install opencv-python
-```
-
-install Networktables
-```
-pip install pynetworktables
-```
-
-Instead of installing everything manually, the setup script could be run to install all dependencies. This script is found in the scripts folder.
-
-make the script executable
-```
-chmod +x setup.sh
-```
-
-run the script
-```
-./setup.sh
-```
-## Setup
-In order to get the repo on the xavier, connect a computer to the xavier using the default IP address for the USB device 
-server.
-```
-ssh user@192.168.xxx.xxx
-```
-Then the files can be moved between the two systems using Secure Copy Protocol
-```
-scp -r .\Path_To_Code\ user@192.168.xxx.xxx:~
-```
-The tilda can be replaced by the directory in which the user would like the repository to be copied to
-
-Ex:
-```
-scp -r .\Path_To_Code\ user@192.168.xxx.xxx:~/filepath/
-```
-
-
-
+SolvPnP vs SolvePnPGeneric:  
+SolvePnp is for a single tag, it only returns one result no matter what. SolvePnPGeneric returns 1 set of rvec, and tvec if multiple tags are detected. With multiple tags the pose is not ambiguous. With one tag it is. This means that there are two possible poses. Both poses are sent to the robot code, the robot code then decides which pose is better, and uses that for an estimate.
