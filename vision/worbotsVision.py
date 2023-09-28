@@ -68,7 +68,7 @@ class WorbotsVision:
             detector = cv2.aruco.CharucoDetector(board, charucoParams, detectorParams)
             (charucoCorners, charucoIds, markerCorners, markerIds) = detector.detectBoard(gray)
 
-            if charucoCorners is not None and charucoIds is not None:
+            if charucoCorners is not None and charucoIds is not None and len(charucoCorners) > 10:
                 if len(charucoCorners) == len(charucoIds):
                     allCharucoCorners.append(charucoCorners)
                     allCharucoIds.append(charucoIds)

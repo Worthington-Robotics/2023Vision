@@ -23,7 +23,7 @@ def main():
         frame, poseDetection = vision.processFrame()
         network.sendPoseDetection(poseDetection)
         
-        cv2.imshow("out", frame)
+        # cv2.imshow("out", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
