@@ -14,12 +14,6 @@ class WorbotsConfig:
     RES_H = 720
     CAM_FPS = 60
     TAG_SIZE_METERS = 0.1524
-    CAM_TO_ROBOT_X = None
-    CAM_TO_ROBOT_Y = None
-    CAM_TO_ROBOT_Z = None
-    CAM_TO_ROBOT_ROLL=None
-    CAM_TO_ROBOT_PITCH=None
-    CAM_TO_ROBOT_YAW=None
 
     def __new__(cls):
         with open(cls.CONFIG_FILENAME, "r") as read_file:
@@ -32,12 +26,6 @@ class WorbotsConfig:
             cls.RES_H = data["ResolutionH"]
             cls.CAM_FPS = data["CameraFPS"]
             cls.TAG_SIZE_METERS = data["TagSizeinMeters"]
-            cls.CAM_TO_ROBOT_X = data["camToRobotX"]
-            cls.CAM_TO_ROBOT_Y = data["camToRobotY"]
-            cls.CAM_TO_ROBOT_Z = data["camToRobotZ"]
-            cls.CAM_TO_ROBOT_ROLL = data["camToRobotRoll"]
-            cls.CAM_TO_ROBOT_PITCH = data["camToRobotPitch"]
-            cls.CAM_TO_ROBOT_YAW = data["camToRobotYaw"]
         return super(WorbotsConfig, cls).__new__(cls)
 
     def __init__(self):
@@ -56,12 +44,6 @@ class WorbotsConfig:
             cls.RES_H = data["ResolutionH"]
             cls.CAM_FPS = data["CameraFPS"]
             cls.TAG_SIZE_METERS = data["TagSizeinMeters"]
-            cls.CAM_TO_ROBOT_X = data["camToRobotX"]
-            cls.CAM_TO_ROBOT_Y = data["camToRobotY"]
-            cls.CAM_TO_ROBOT_Z = data["camToRobotZ"]
-            cls.CAM_TO_ROBOT_ROLL = data["camToRobotRoll"]
-            cls.CAM_TO_ROBOT_PITCH = data["camToRobotPitch"]
-            cls.CAM_TO_ROBOT_YAW = data["camToRobotYaw"]
 
     def saveCameraIntrinsics(self, cameraMatrix, cameraDist, rvecs, tvecs):
         intrinsics = {

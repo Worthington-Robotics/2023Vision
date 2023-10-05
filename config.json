@@ -2,15 +2,9 @@
     "CameraId": 0,
     "TeamNumber": 4145,
     "ModuleId": 0,
-    "SimMode": true,
+    "SimMode": false,
     "ResolutionW": 1280,
     "ResolutionH": 720,
     "CameraFPS": 60,
-    "TagSizeinMeters": 0.1524,
-    "camToRobotX": 0,
-    "camToRobotY": 0,
-    "camToRobotZ": 0,
-    "camToRobotRoll": 0,
-    "camToRobotPitch": 0,
-    "camToRobotYaw": 0
+    "TagSizeinMeters": 0.1524
 }

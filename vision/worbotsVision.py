@@ -191,8 +191,6 @@ class WorbotsVision:
                     ]
                     index +=1
             index = 0
-            camera_to_robot_pose = self.poseCalc.openCvtoWpi(np.array([[self.worConfig.CAM_TO_ROBOT_X], [self.worConfig.CAM_TO_ROBOT_Y], [self.worConfig.CAM_TO_ROBOT_Z]]), np.array([[self.worConfig.CAM_TO_ROBOT_ROLL], [self.worConfig.CAM_TO_ROBOT_PITCH], [self.worConfig.CAM_TO_ROBOT_YAW]]))
-            camera_to_robot = Transform3d(camera_to_robot_pose.translation(), camera_to_robot_pose.rotation())
             if len(ids)==1:
                 _, rvec, tvec, errors = cv2.solvePnPGeneric(self.objPoints, np.array(imgPoints), self.mtx, self.dist, flags=cv2.SOLVEPNP_IPPE_SQUARE)
                 field_to_tag_pose = self.poseCalc.getPose3dFromTagID(ids[0])
@@ -204,17 +202,14 @@ class WorbotsVision:
                 field_to_camera_1 = field_to_tag_pose.transformBy(camera_to_tag_1.inverse())
                 field_to_camera_pose_0 = Pose3d(field_to_camera_0.translation(), field_to_camera_0.rotation())
                 field_to_camera_pose_1 = Pose3d(field_to_camera_1.translation(), field_to_camera_1.rotation())
-                field_to_robot_pose_0 = field_to_camera_pose_0.transformBy(camera_to_robot)
-                field_to_robot_pose_1 = field_to_camera_pose_1.transformBy(camera_to_robot)
-                return gray, PoseDetection(field_to_robot_pose_0, errors[0][0], field_to_robot_pose_1, errors[1][0], ids[0])
+                return gray, PoseDetection(field_to_camera_pose_0, errors[0][0], field_to_camera_pose_1, errors[1][0], ids[0])
             if len(ids)>1:
                 _, rvec, tvec, errors = cv2.solvePnPGeneric(np.array(objPoints), np.array(imgPoints), self.mtx, self.dist, flags=cv2.SOLVEPNP_SQPNP)
                 camera_to_field_pose = self.poseCalc.openCvtoWpi(tvec[0], rvec[0])
                 camera_to_field = Transform3d(camera_to_field_pose.translation(), camera_to_field_pose.rotation())
                 field_to_camera = camera_to_field.inverse()
                 field_to_camera_pose = Pose3d(field_to_camera.translation(), field_to_camera.rotation())
-                field_to_robot_pose = field_to_camera_pose.transformBy(camera_to_robot)
-                return gray, PoseDetection(field_to_robot_pose, errors[0][0], None, None, ids)
+                return gray, PoseDetection(field_to_camera_pose, errors[0][0], None, None, ids)
         else:
             return gray, None
 
