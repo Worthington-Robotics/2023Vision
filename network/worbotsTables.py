@@ -32,6 +32,7 @@ class WorbotsTables:
         self.pose0Publisher = table.getDoubleArrayTopic("pose0").publish(ntcore.PubSubOptions())
         self.pose1Publisher = table.getDoubleArrayTopic("pose1").publish(ntcore.PubSubOptions())
         self.fpsPublisher = table.getDoubleTopic("fps").publish(ntcore.PubSubOptions())
+        self.numTagsPublisher = table.getIntegerTopic("numberOfTags").publish(ntcore.PubSubOptions())
 
     def sendPoseDetection(self, poseDetection: PoseDetection):
         if poseDetection is None:
@@ -52,6 +53,9 @@ class WorbotsTables:
     
     def sendPose3d(self, pose: Pose3d):
         self.dataPublisher.set(self.getArrayFromPose3d(pose))
+
+    def sendNumDetections(self, number: int):
+        self.numTagsPublisher.set(number)
 
     def sendFps(self, fps):
         self.fpsPublisher.set(fps)

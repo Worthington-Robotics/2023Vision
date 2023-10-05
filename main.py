@@ -11,7 +11,6 @@ def main():
     config = WorbotsConfig()
     network = WorbotsTables()
     vision = WorbotsVision()
-    calc = PoseCalculator()
     print(f"Optimized used?: {cv2.useOptimized()}")
     network.sendConfig()
     # vision.calibrateCameraImages("./images")
@@ -22,6 +21,11 @@ def main():
 
         frame, poseDetection = vision.processFrame()
         network.sendPoseDetection(poseDetection)
+        if (poseDetection is not None):
+            network.sendNumDetections(len(poseDetection.tag_ids))
+        else:
+            network.sendNumDetections(0)
+        
         
         # cv2.imshow("out", frame)
 
