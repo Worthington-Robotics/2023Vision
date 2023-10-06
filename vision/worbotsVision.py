@@ -223,4 +223,3 @@ class WorbotsVision:
             cv2.imshow("out", frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
