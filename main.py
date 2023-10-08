@@ -1,8 +1,7 @@
-import threading
-import json
 import time
 import cv2
 from wpimath.geometry import *
+from cscore import CameraServer
 from vision import WorbotsVision, PoseCalculator
 from network import WorbotsTables
 from config import WorbotsConfig
@@ -11,6 +10,8 @@ def main():
     config = WorbotsConfig()
     network = WorbotsTables()
     vision = WorbotsVision()
+    CameraServer.enableLogging()
+    output = CameraServer.putVideo("Module"+str(config.MODULE_ID), config.RES_W, config.RES_H)
     print(f"Optimized used?: {cv2.useOptimized()}")
     network.sendConfig()
     # vision.calibrateCameraImages("./images")
@@ -27,7 +28,7 @@ def main():
             network.sendNumDetections(0)
         
         
-        # cv2.imshow("out", frame)
+        output.putFrame(frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
