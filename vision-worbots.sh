@@ -1,1 +1,2 @@
-python3 /home/worbots4145/2023Vision/main.py
+cd /home/worbots4145/2023Vision
+python3 main.py

@@ -11,7 +11,7 @@ def main():
     network = WorbotsTables()
     vision = WorbotsVision()
     CameraServer.enableLogging()
-    output = CameraServer.putVideo("Module"+str(config.MODULE_ID), config.RES_W/2, config.RES_H/2)
+    output = CameraServer.putVideo("Module"+str(config.MODULE_ID), config.RES_W, config.RES_H)
     print(f"Optimized used?: {cv2.useOptimized()}")
     network.sendConfig()
     # vision.calibrateCameraImages("./images")
