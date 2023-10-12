@@ -2,7 +2,7 @@
     "CameraId": 0,
     "TeamNumber": 4145,
     "ModuleId": 0,
-    "SimMode": true,
+    "SimMode": false,
     "ResolutionW": 1280,
     "ResolutionH": 720,
     "CameraFPS": 60,
