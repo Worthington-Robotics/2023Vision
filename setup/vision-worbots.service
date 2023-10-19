@@ -4,6 +4,8 @@ Description=Python Script that runs on startup
 [Service]
 Type=simple
 User=worbots4145
+Restart=always
+RestartSec=1
 ExecStart=/bin/bash /home/worbots4145/2023Vision/vision-worbots.sh
 
 [Install]

@@ -1,2 +1,2 @@
-cp ./vision-worbots.service /etc/systemd/services
+cp ./vision-worbots.service /etc/systemd/system
 pip3 install -r requirements.txt

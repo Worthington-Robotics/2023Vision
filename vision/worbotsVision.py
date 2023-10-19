@@ -26,6 +26,8 @@ class WorbotsVision:
 
     def __init__(self):
         self.cap = cv2.VideoCapture(self.worConfig.CAMERA_ID)
+        availableBackends = [cv2.videoio_registry.getBackendName(b) for b in cv2.videoio_registry.getBackends()]
+        print(availableBackends)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
         self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
