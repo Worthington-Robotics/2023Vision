@@ -27,12 +27,16 @@ class WorbotsTables:
             self.ntInstance.setServerTeam(self.config.TEAM_NUMBER)
             self.ntInstance.startClient4(f"VisionModule{self.config.MODULE_ID}")
 
-        table = self.ntInstance.getTable(f"/module{self.config.MODULE_ID}/output")
+        self.moduleTable = self.ntInstance.getTable(f"/module{self.config.MODULE_ID}")
+        table = self.moduleTable.getSubTable("output")
+        configTable = self.moduleTable.getSubTable("config")
         self.dataPublisher = table.getDoubleArrayTopic("data").publish(ntcore.PubSubOptions())
         self.pose0Publisher = table.getDoubleArrayTopic("pose0").publish(ntcore.PubSubOptions())
         self.pose1Publisher = table.getDoubleArrayTopic("pose1").publish(ntcore.PubSubOptions())
         self.fpsPublisher = table.getDoubleTopic("fps").publish(ntcore.PubSubOptions())
         self.numTagsPublisher = table.getIntegerTopic("numberOfTags").publish(ntcore.PubSubOptions())
+        configTable.getBooleanTopic("liveCalib").publish().set(False)
+        self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
     def sendPoseDetection(self, poseDetection: PoseDetection):
         if poseDetection is None:
@@ -47,6 +51,13 @@ class WorbotsTables:
                 self.pose1Publisher.set(self.getArrayFromPose3d(poseDetection.pose2))
             else:
                 self.pose1Publisher.set([])
+            dataArray = []
+            dataArray.append(poseDetection.err1)
+            dataArray.append(self.getArrayFromPose3d(poseDetection.pose1))
+            dataArray.append(poseDetection.err2)
+            dataArray.append(self.getArrayFromPose3d(poseDetection.pose2))
+            dataArray.append(poseDetection.tag_ids)
+            self.dataPublisher.set(np.array(dataArray))
 
     def checkForConfigChange(self):
         print("Checking for config changes..")

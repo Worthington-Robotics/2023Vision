@@ -25,7 +25,7 @@ class WorbotsVision:
     axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
 
     def __init__(self):
-        self.cap = cv2.VideoCapture(self.worConfig.CAMERA_ID, cv2.CAP_PROP_FOURCC)
+        self.cap = cv2.VideoCapture(self.worConfig.CAMERA_ID)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
         self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
