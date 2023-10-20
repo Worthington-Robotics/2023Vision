@@ -12,8 +12,6 @@ class WorbotsTables:
     # Output Publishers
     fpsPublisher = None
     dataPublisher = None
-    pose0Publisher = None
-    pose1Publisher = None
 
     # Config Subscribers
     cameraIdSubscriber: ntcore.IntegerSubscriber
@@ -31,33 +29,37 @@ class WorbotsTables:
         table = self.moduleTable.getSubTable("output")
         configTable = self.moduleTable.getSubTable("config")
         self.dataPublisher = table.getDoubleArrayTopic("data").publish(ntcore.PubSubOptions())
-        self.pose0Publisher = table.getDoubleArrayTopic("pose0").publish(ntcore.PubSubOptions())
-        self.pose1Publisher = table.getDoubleArrayTopic("pose1").publish(ntcore.PubSubOptions())
         self.fpsPublisher = table.getDoubleTopic("fps").publish(ntcore.PubSubOptions())
         self.numTagsPublisher = table.getIntegerTopic("numberOfTags").publish(ntcore.PubSubOptions())
         configTable.getBooleanTopic("liveCalib").publish().set(False)
         self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
     def sendPoseDetection(self, poseDetection: PoseDetection):
-        if poseDetection is None:
-            self.pose0Publisher.set([])
-            self.pose1Publisher.set([])
-        else:
-            if poseDetection.pose1 is not None:
-                self.pose0Publisher.set(self.getArrayFromPose3d(poseDetection.pose1))
-            else:
-                self.pose0Publisher.set([])
-            if poseDetection.pose2 is not None:
-                self.pose1Publisher.set(self.getArrayFromPose3d(poseDetection.pose2))
-            else:
-                self.pose1Publisher.set([])
-            dataArray = []
-            dataArray.append(poseDetection.err1)
-            dataArray.append(self.getArrayFromPose3d(poseDetection.pose1))
-            dataArray.append(poseDetection.err2)
-            dataArray.append(self.getArrayFromPose3d(poseDetection.pose2))
-            dataArray.append(poseDetection.tag_ids)
-            self.dataPublisher.set(np.array(dataArray))
+        if poseDetection is not None:
+            dataArray = [0]
+            dataArray[0] = 1
+            if poseDetection.err1 and poseDetection.pose1 is not None:
+                dataArray.append(poseDetection.err1)
+                dataArray.append(poseDetection.pose1.X())
+                dataArray.append(poseDetection.pose1.Y())
+                dataArray.append(poseDetection.pose1.Z())
+                dataArray.append(poseDetection.pose1.rotation().getQuaternion().W())
+                dataArray.append(poseDetection.pose1.rotation().getQuaternion().X())
+                dataArray.append(poseDetection.pose1.rotation().getQuaternion().Y())
+                dataArray.append(poseDetection.pose1.rotation().getQuaternion().Z())
+            if poseDetection.err2 and poseDetection.pose2 is not None:
+                dataArray[0] = 2
+                dataArray.append(poseDetection.err2)
+                dataArray.append(poseDetection.pose2.X())
+                dataArray.append(poseDetection.pose2.Y())
+                dataArray.append(poseDetection.pose2.Z())
+                dataArray.append(poseDetection.pose2.rotation().getQuaternion().W())
+                dataArray.append(poseDetection.pose2.rotation().getQuaternion().X())
+                dataArray.append(poseDetection.pose2.rotation().getQuaternion().Y())
+                dataArray.append(poseDetection.pose2.rotation().getQuaternion().Z())
+            for tag_id in poseDetection.tag_ids:
+                dataArray.append(tag_id)
+            self.dataPublisher.set(dataArray)
 
     def checkForConfigChange(self):
         print("Checking for config changes..")
