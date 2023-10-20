@@ -166,6 +166,7 @@ class WorbotsVision:
 
         imgPoints = []
         objPoints = []
+        tag_ids = []
 
         dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_APRILTAG_16h5)
         detectorParams = cv2.aruco.DetectorParameters()
@@ -193,6 +194,7 @@ class WorbotsVision:
                         [corners[index][0][2][0], corners[index][0][2][1]],
                         [corners[index][0][3][0], corners[index][0][3][1]]
                     ]
+                    tag_ids.append(id)
                     index +=1
             index = 0
             if len(ids)==1:
@@ -206,14 +208,14 @@ class WorbotsVision:
                 field_to_camera_1 = field_to_tag_pose.transformBy(camera_to_tag_1.inverse())
                 field_to_camera_pose_0 = Pose3d(field_to_camera_0.translation(), field_to_camera_0.rotation())
                 field_to_camera_pose_1 = Pose3d(field_to_camera_1.translation(), field_to_camera_1.rotation())
-                return frame, PoseDetection(field_to_camera_pose_0, errors[0][0], field_to_camera_pose_1, errors[1][0], ids[0])
+                return frame, PoseDetection(field_to_camera_pose_0, errors[0][0], field_to_camera_pose_1, errors[1][0], tag_ids)
             if len(ids)>1:
                 _, rvec, tvec, errors = cv2.solvePnPGeneric(np.array(objPoints), np.array(imgPoints), self.mtx, self.dist, flags=cv2.SOLVEPNP_SQPNP)
                 camera_to_field_pose = self.poseCalc.openCvtoWpi(tvec[0], rvec[0])
                 camera_to_field = Transform3d(camera_to_field_pose.translation(), camera_to_field_pose.rotation())
                 field_to_camera = camera_to_field.inverse()
                 field_to_camera_pose = Pose3d(field_to_camera.translation(), field_to_camera.rotation())
-                return frame, PoseDetection(field_to_camera_pose, errors[0][0], None, None, ids)
+                return frame, PoseDetection(field_to_camera_pose, errors[0][0], None, None, tag_ids)
         else:
             return frame, None
 

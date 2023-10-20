@@ -22,11 +22,6 @@ def main():
 
         frame, poseDetection = vision.processFrame()
         network.sendPoseDetection(poseDetection)
-        if (poseDetection is not None):
-            network.sendNumDetections(len(poseDetection.tag_ids))
-        else:
-            network.sendNumDetections(0)
-        
         
         output.putFrame(frame)
 

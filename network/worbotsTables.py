@@ -30,7 +30,6 @@ class WorbotsTables:
         configTable = self.moduleTable.getSubTable("config")
         self.dataPublisher = table.getDoubleArrayTopic("data").publish(ntcore.PubSubOptions())
         self.fpsPublisher = table.getDoubleTopic("fps").publish(ntcore.PubSubOptions())
-        self.numTagsPublisher = table.getIntegerTopic("numberOfTags").publish(ntcore.PubSubOptions())
         configTable.getBooleanTopic("liveCalib").publish().set(False)
         self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
@@ -66,9 +65,6 @@ class WorbotsTables:
     
     def sendPose3d(self, pose: Pose3d):
         self.dataPublisher.set(self.getArrayFromPose3d(pose))
-
-    def sendNumDetections(self, number: int):
-        self.numTagsPublisher.set(number)
 
     def sendFps(self, fps):
         self.fpsPublisher.set(fps)
