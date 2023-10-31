@@ -1,5 +1,6 @@
 import time
 import ntcore
+import math
 import numpy as np
 from config import WorbotsConfig
 from worbotsDetection import Detection, PoseDetection
@@ -33,7 +34,7 @@ class WorbotsTables:
         configTable.getBooleanTopic("liveCalib").publish().set(False)
         self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
-    def sendPoseDetection(self, poseDetection: PoseDetection):
+    def sendPoseDetection(self, poseDetection: PoseDetection, timestamp: float):
         if poseDetection is not None:
             dataArray = [0]
             dataArray[0] = 1
@@ -58,10 +59,7 @@ class WorbotsTables:
                 dataArray.append(poseDetection.pose2.rotation().getQuaternion().Z())
             for tag_id in poseDetection.tag_ids:
                 dataArray.append(tag_id)
-            self.dataPublisher.set(dataArray)
-
-    def checkForConfigChange(self):
-        print("Checking for config changes..")
+            self.dataPublisher.set(dataArray, math.floor(timestamp * 1000000))
     
     def sendPose3d(self, pose: Pose3d):
         self.dataPublisher.set(self.getArrayFromPose3d(pose))

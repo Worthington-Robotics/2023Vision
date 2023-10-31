@@ -25,14 +25,10 @@ class WorbotsVision:
     axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
 
     def __init__(self):
-        self.cap = cv2.VideoCapture(self.worConfig.CAMERA_ID)
-        # self.cap = cv2.VideoCapture("v4l2src ! 'image/jpeg', width=1280, height=720, format=MJPG, framerate=60/1 ! jpegdec ! appsink", cv2.CAP_GSTREAMER)
-        availableBackends = [cv2.videoio_registry.getBackendName(b) for b in cv2.videoio_registry.getBackends()]
-        print(availableBackends)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
+        # self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate=60/1 ! jpegdec ! appsink", cv2.CAP_GSTREAMER)
+        self.cap = cv2.VideoCapture(0)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
-        self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
-        print("done init")
+        print("Initialized Camera")
 
     def setCamResolution(self, width, height):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -171,9 +167,9 @@ class WorbotsVision:
         dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_APRILTAG_16h5)
         detectorParams = cv2.aruco.DetectorParameters()
         (corners, ids, rejected) = cv2.aruco.detectMarkers(gray, dictionary, None, None, detectorParams)
-        cv2.aruco.drawDetectedMarkers(frame, corners, ids, (0, 0, 255))
 
         if ids is not None:
+            cv2.aruco.drawDetectedMarkers(frame, corners, ids, (0, 0, 255))
             if len(ids) > 0:
                 index = 0
                 for id in ids:

@@ -1,5 +1,6 @@
 import time
 import cv2
+import math
 from wpimath.geometry import *
 from cscore import CameraServer
 from vision import WorbotsVision, PoseCalculator
@@ -21,7 +22,7 @@ def main():
         start = time.time()
 
         frame, poseDetection = vision.processFrame()
-        network.sendPoseDetection(poseDetection)
+        network.sendPoseDetection(poseDetection, math.floor(start * 1000000))
         
         output.putFrame(frame)
 

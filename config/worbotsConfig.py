@@ -34,17 +34,6 @@ class WorbotsConfig:
     def getKey(self, key) -> any:
         return WorbotsConfig.data[key]
 
-    def update(cls):
-        with open(cls.CONFIG_FILENAME, "r") as read_file:
-            cls.CAMERA_ID = data["CameraId"]
-            cls.TEAM_NUMBER = data["TeamNumber"]
-            cls.MODULE_ID = data["ModuleId"]
-            cls.SIM_MODE = data["SimMode"]
-            cls.RES_W = data["ResolutionW"]
-            cls.RES_H = data["ResolutionH"]
-            cls.CAM_FPS = data["CameraFPS"]
-            cls.TAG_SIZE_METERS = data["TagSizeinMeters"]
-
     def saveCameraIntrinsics(self, cameraMatrix, cameraDist, rvecs, tvecs):
         intrinsics = {
             "cameraMatrix": cameraMatrix.tolist(),
