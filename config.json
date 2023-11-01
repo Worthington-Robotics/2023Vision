@@ -6,5 +6,6 @@
     "ResolutionW": 640,
     "ResolutionH": 480,
     "CameraFPS": 37,
-    "TagSizeinMeters": 0.1524
+    "TagSizeinMeters": 0.1524,
+    "UseGStreamer": false
 }

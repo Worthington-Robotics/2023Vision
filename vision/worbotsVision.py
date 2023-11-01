@@ -27,22 +27,26 @@ class WorbotsVision:
     detectorParams = cv2.aruco.DetectorParameters()
 
     def __init__(self):
-        # self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate=60/1 ! jpegdec ! appsink", cv2.CAP_GSTREAMER)
         self.detectorParams.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_APRILTAG
         # self.detectorParams.maxMarkerPerimeterRate = 3.5
         self.detectorParams.minDistanceToBorder = 10
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
-        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-        self.cap.set(cv2.CAP_PROP_HW_ACCELERATION, 1.0)
-        self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
-        # self.cap.set(cv2.CAP_PROP_, 1.0)
+        self.createBaseCamera()
         if self.cap.isOpened():
             print(f"Initialized Camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
             print(f"Camera running at {self.cap.get(cv2.CAP_PROP_FPS)} fps")
         else:
             print("Failed to initialize Camera")
+
+    def createBaseCamera(self):
+        if self.worConfig.USE_GSTREAMER:
+            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate=60/1 ! jpegdec ! appsink", cv2.CAP_GSTREAMER)
+        else:
+            self.cap = cv2.VideoCapture(0)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
+            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+            self.cap.set(cv2.CAP_PROP_HW_ACCELERATION, 1.0)
+            self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
 
     def setCamResolution(self, width, height):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)

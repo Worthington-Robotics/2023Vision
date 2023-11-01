@@ -14,6 +14,7 @@ class WorbotsConfig:
     RES_H = 720
     CAM_FPS = 60
     TAG_SIZE_METERS = 0.1524
+    USE_GSTREAMER = False
 
     def __new__(cls):
         with open(cls.CONFIG_FILENAME, "r") as read_file:
@@ -26,6 +27,7 @@ class WorbotsConfig:
             cls.RES_H = data["ResolutionH"]
             cls.CAM_FPS = data["CameraFPS"]
             cls.TAG_SIZE_METERS = data["TagSizeinMeters"]
+            cls.USE_GSTREAMER = data["UseGStreamer"]
         return super(WorbotsConfig, cls).__new__(cls)
 
     def __init__(self):
