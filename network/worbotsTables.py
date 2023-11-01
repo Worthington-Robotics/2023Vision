@@ -1,3 +1,4 @@
+import collections
 import time
 import ntcore
 import math
@@ -34,10 +35,10 @@ class WorbotsTables:
         configTable.getBooleanTopic("liveCalib").publish().set(False)
         self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
-    def sendPoseDetection(self, poseDetection: PoseDetection, timestamp: float):
+    def sendPoseDetection(self, poseDetection: PoseDetection | None, timestamp: float):
         if poseDetection is not None:
-            dataArray = [0]
-            dataArray[0] = 1
+            dataArray = [0.0]
+            dataArray[0] = 1.0
             if poseDetection.err1 and poseDetection.pose1 is not None:
                 dataArray.append(poseDetection.err1)
                 dataArray.append(poseDetection.pose1.X())
@@ -48,7 +49,7 @@ class WorbotsTables:
                 dataArray.append(poseDetection.pose1.rotation().getQuaternion().Y())
                 dataArray.append(poseDetection.pose1.rotation().getQuaternion().Z())
             if poseDetection.err2 and poseDetection.pose2 is not None:
-                dataArray[0] = 2
+                dataArray[0] = 2.0
                 dataArray.append(poseDetection.err2)
                 dataArray.append(poseDetection.pose2.X())
                 dataArray.append(poseDetection.pose2.Y())
@@ -58,8 +59,14 @@ class WorbotsTables:
                 dataArray.append(poseDetection.pose2.rotation().getQuaternion().Y())
                 dataArray.append(poseDetection.pose2.rotation().getQuaternion().Z())
             for tag_id in poseDetection.tag_ids:
-                dataArray.append(tag_id)
-            self.dataPublisher.set(dataArray, math.floor(timestamp * 1000000))
+                # Array check
+                # if hasattr(tag_id, "__len__"):
+                #     for id in tag_id:
+                #         dataArray.append(float(id))
+                # else:
+                #     dataArray.append(float(tag_id))
+                dataArray.append(float(tag_id))
+            self.dataPublisher.set(dataArray, int(math.floor(timestamp * 1000000)))
     
     def sendPose3d(self, pose: Pose3d):
         self.dataPublisher.set(self.getArrayFromPose3d(pose))
