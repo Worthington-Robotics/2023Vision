@@ -1,5 +1,5 @@
 import cv2
-from typing import List, Union
+from typing import Any, List, Union
 import numpy as np
 import math
 from config import WorbotsConfig
@@ -11,7 +11,6 @@ import os
 
 class WorbotsVision:
     worConfig = WorbotsConfig()
-    worNetwork = WorbotsTables()
     mtx, dist = worConfig.getCameraIntrinsicsFromJSON()
     axis_len = 0.1
     poseCalc = PoseCalculator()
@@ -25,17 +24,21 @@ class WorbotsVision:
     axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
     apriltagDict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_APRILTAG_16h5)
     detectorParams = cv2.aruco.DetectorParameters()
+    detector = cv2.aruco.ArucoDetector()
 
-    def __init__(self):
-        self.detectorParams.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_APRILTAG
+    def __init__(self, hasCamera: bool = True):
+        # self.detectorParams.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_APRILTAG
         # self.detectorParams.maxMarkerPerimeterRate = 3.5
         self.detectorParams.minDistanceToBorder = 10
-        self.createBaseCamera()
-        if self.cap.isOpened():
-            print(f"Initialized Camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
-            print(f"Camera running at {self.cap.get(cv2.CAP_PROP_FPS)} fps")
-        else:
-            print("Failed to initialize Camera")
+        self.detector.setDetectorParameters(self.detectorParams)
+        self.detector.setDictionary(self.apriltagDict)
+        if hasCamera:
+            self.createBaseCamera()
+            if self.cap.isOpened():
+                print(f"Initialized Camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
+                print(f"Camera running at {self.cap.get(cv2.CAP_PROP_FPS)} fps")
+            else:
+                print("Failed to initialize Camera")
 
     def createBaseCamera(self):
         if self.worConfig.USE_GSTREAMER:
@@ -174,22 +177,30 @@ class WorbotsVision:
             cv2.aruco.drawDetectedMarkers(frame, corners, ids, (0, 0, 255))
         return frame, returnArray
     
-    def getRawFrame(self):
-        ret, frame = self.cap.read()
+    def getRawFrame(self) -> Any | None:
+        if not self.cap.isOpened():
+            return None
+        ret = self.cap.grab()
         if not ret:
-            print("Failed to read camera frame")
-        return frame
+            return None
+        ret, frame = self.cap.read()
+        if ret:
+            return frame
+        else:
+            return None
     
-    def getAndProcessFrame(self):
-        self.processFrame(self.getRawFrame())
+    def getAndProcessFrame(self) -> (Any | None, PoseDetection | None):
+        return self.processFrame(self.getRawFrame())
  
-    def processFrame(self, frame):
+    def processFrame(self, frame: Any | None) -> (Any | None, PoseDetection | None):
+        if frame is None:
+            return None, None
+        
         imgPoints = []
         objPoints = []
         tag_ids = []
 
-        detectorParams = cv2.aruco.DetectorParameters()
-        (corners, ids, rejected) = cv2.aruco.detectMarkers(frame, self.apriltagDict, None, None, detectorParams)
+        (corners, ids, _) = self.detector.detectMarkers(frame)
 
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(frame, corners, ids, (0, 0, 255))

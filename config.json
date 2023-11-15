@@ -3,9 +3,9 @@
     "TeamNumber": 4145,
     "ModuleId": 0,
     "SimMode": false,
-    "ResolutionW": 640,
-    "ResolutionH": 480,
-    "CameraFPS": 37,
+    "ResolutionW": 1280,
+    "ResolutionH": 720,
+    "CameraFPS": 60,
     "TagSizeinMeters": 0.1524,
     "UseGStreamer": false
 }
