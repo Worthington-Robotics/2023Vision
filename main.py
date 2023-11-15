@@ -3,7 +3,7 @@ from queue import Empty
 import sys
 from multiprocessing import Process, Queue, Event
 import time
-from typing import Any, Union, List, Optional
+from typing import Any, List, Optional
 import cv2
 from wpimath.geometry import *
 from cscore import CameraServer
@@ -13,33 +13,23 @@ from network import WorbotsTables
 from config import WorbotsConfig
 from vision.worbotsCamera import WorbotsCamera
 from worbotsDetection import PoseDetection
-import queue
+from argparse import ArgumentParser
 
-# Set to true to have the pipeline only run once
-runOnce = False
-# Set to false to disable processing and pose detection
-processVideo = True
-# Set to false to disable sending pose data to nt
-sendPoseData = False
-# Set to true to show the frame when running locally
-showImage = True
-# Set to true to print the fps to the console
-printFps = True
-
-def main():
+def main(configPath: Optional[str]):
     prof = cProfile.Profile()
     prof.enable()
 
-    camera = WorbotsCamera(runOnce)
-    output = Output()
+    config = WorbotsConfig(configPath)
+    camera = WorbotsCamera(configPath)
+    output = Output(configPath)
     
-    procCount = 1
+    procCount = config.PROC_COUNT
 
     outQueue: Queue = Queue()
     processors: List[Processor] = []
     try:
         for i in range(procCount):
-            processors.append(Processor(i, outQueue))
+            processors.append(Processor(i, configPath, outQueue))
         
         # Used so that the printed FPS is only updated every couple of frames so it doesnt look
         # so jittery
@@ -75,14 +65,14 @@ def main():
 
                 timeWhenLastFrameDone = time.time()
 
-                if printFps:
+                if config.PRINT_FPS:
                     if i % 10000 == 0:
                         sys.stdout.write(f"\rFPS: {averageFps.average()}")
                         sys.stdout.flush()
 
                 output.sendFps(averageFps.average())
 
-                if runOnce:
+                if config.RUN_ONCE:
                     break
     except Exception as e:
         print(e)
@@ -116,9 +106,9 @@ class Processor:
     inQueue = Queue()
     terminate = Event()
 
-    def __init__(self, index: int, outQueue: Queue):
+    def __init__(self, index: int, configPath: Optional[str], outQueue: Queue):
         self.index = index
-        self.proc = Process(target=runProcessor, args=(index, self.inQueue, outQueue, self.terminate,), name="Vision Processor")
+        self.proc = Process(target=runProcessor, args=(index, configPath, self.inQueue, outQueue, self.terminate,), name="Vision Processor")
         self.proc.start()
 
     def sendCameraFrame(self, frame: Optional[Any]):
@@ -129,19 +119,19 @@ class Processor:
         self.terminate.set()
         self.proc.terminate()
 
-def runProcessor(index: int, inQueue: Queue, outQueue: Queue, terminate: Event):
+def runProcessor(index: int, configPath: Optional[str], inQueue: Queue, outQueue: Queue, terminate: Event):
     if index == 0:
         prof = cProfile.Profile()
         prof.enable()
     else:
         prof = None
 
-    vision = WorbotsVision(hasCamera=False)
+    vision = WorbotsVision(hasCamera=False, configPath=configPath)
+    config = WorbotsConfig(configPath)
     
     # vision.calibrateCameraImages("./images")
     # vision.calibrateCamLive()
 
-    fpses = []
     try:
         while not terminate.is_set():
             start = time.time()
@@ -155,22 +145,13 @@ def runProcessor(index: int, inQueue: Queue, outQueue: Queue, terminate: Event):
             if frame is None:
                 continue
             else:
-                if processVideo:
+                if config.PROCESS_VIDEO:
                     frame, poseDetection = vision.processFrame(frame)
 
-            now = time.time()
-            fps = 0
-            if now - start != 0:
-                fps = int(1 / (now - start))
-
-            averageFps = None
-            if printFps:
-                fpses.append(fps)
-
-            frameData = FrameData(frame, poseDetection, start, fps, averageFps)
+            frameData = FrameData(frame, poseDetection, start, 0.0, 0.0)
             outQueue.put(frameData)
 
-            if runOnce:
+            if config.RUN_ONCE:
                 break
     except Exception as e:
         print(e)
@@ -193,8 +174,8 @@ class Output:
     fpsQueue = Queue()
     frameQueue = Queue()
 
-    def __init__(self):
-        self.proc = Process(target=runOutput, args=(self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output")
+    def __init__(self, configPath: Optional[str]):
+        self.proc = Process(target=runOutput, args=(configPath, self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output")
         self.proc.start()
 
     def sendPoseDetection(self, detection: Optional[DetectionData]):
@@ -211,9 +192,9 @@ class Output:
     def stop(self):
         self.proc.terminate()
 
-def runOutput(detectionQueue: Queue, fpsQueue: Queue, frameQueue: Queue):
-    config = WorbotsConfig()
-    network = WorbotsTables()
+def runOutput(configPath: Optional[str], detectionQueue: Queue, fpsQueue: Queue, frameQueue: Queue):
+    config = WorbotsConfig(configPath)
+    network = WorbotsTables(configPath)
     CameraServer.enableLogging()
     output = CameraServer.putVideo("Module"+str(config.MODULE_ID), config.RES_W, config.RES_H)
     print(f"Optimized used?: {cv2.useOptimized()}")
@@ -226,7 +207,7 @@ def runOutput(detectionQueue: Queue, fpsQueue: Queue, frameQueue: Queue):
         except Empty:
             detection = None
 
-        if sendPoseData and detection is not None:
+        if config.SEND_POSE_DATA and detection is not None:
             network.sendPoseDetection(detection.poseData, detection.timestamp)
 
         # Camera frames
@@ -237,7 +218,7 @@ def runOutput(detectionQueue: Queue, fpsQueue: Queue, frameQueue: Queue):
 
         if frame is not None:
             output.putFrame(frame)
-            if showImage:
+            if config.SHOW_IMAGE:
                 cv2.imshow('image', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -249,8 +230,13 @@ def runOutput(detectionQueue: Queue, fpsQueue: Queue, frameQueue: Queue):
         except Empty:
             pass
 
-        if runOnce:
+        if config.RUN_ONCE:
             break
 
 if __name__ == '__main__':
-    main()
+    parser = ArgumentParser()
+    parser.add_argument("-c", "--config-path", default="config.json", help="Path to the config file. Defaults to ./config.json")
+    args = parser.parse_args()
+    print(f"Config path: {args.config_path}")
+        
+    main(args.config_path)

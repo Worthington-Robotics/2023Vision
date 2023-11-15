@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from worbotsDetection import Detection, PoseDetection
+from typing import Optional, Dict
 
 class WorbotsConfig:
     CONFIG_FILENAME = "config.json"
@@ -15,22 +15,71 @@ class WorbotsConfig:
     CAM_FPS = 60
     TAG_SIZE_METERS = 0.1524
     USE_GSTREAMER = False
+    RUN_ONCE = False
+    PROCESS_VIDEO = True
+    SEND_POSE_DATA = True
+    SHOW_IMAGE = False
+    PRINT_FPS = True
+    PROFILE = False
+    PROC_COUNT = 1
 
-    def __new__(cls):
-        with open(cls.CONFIG_FILENAME, "r") as read_file:
-            data = json.load(read_file)
-            cls.CAMERA_ID = data["CameraId"]
-            cls.TEAM_NUMBER = data["TeamNumber"]
-            cls.MODULE_ID = int(data["ModuleId"])
-            cls.SIM_MODE = data["SimMode"]
-            cls.RES_W = data["ResolutionW"]
-            cls.RES_H = data["ResolutionH"]
-            cls.CAM_FPS = data["CameraFPS"]
-            cls.TAG_SIZE_METERS = data["TagSizeinMeters"]
-            cls.USE_GSTREAMER = data["UseGStreamer"]
+    def __new__(cls, path: Optional[str] = "config.json"):
+        if path is None:
+            path = "config.json"
+        with open(path, "r") as read_file:
+            data: Dict = json.load(read_file)
+
+            val = data.get("CameraId")
+            if val is not None:
+                cls.CAMERA_ID = val
+            val = data.get("TeamNumber")
+            if val is not None:
+                cls.TEAM_NUMBER = val
+            val = data.get("ModuleId")
+            if val is not None:
+                cls.MODULE_ID = val
+            val = data.get("SimMode")
+            if val is not None:
+                cls.SIM_MODE = val
+            val = data.get("ResolutionW")
+            if val is not None:
+                cls.RES_W = val
+            val = data.get("ResolutionH")
+            if val is not None:
+                cls.RES_H = val
+            val = data.get("CameraFPS")
+            if val is not None:
+                cls.CAM_FPS = val
+            val = data.get("TagSizeinMeters")
+            if val is not None:
+                cls.TAG_SIZE_METERS = val
+            val = data.get("UseGStreamer")
+            if val is not None:
+                cls.USE_GSTREAMER = val
+            val = data.get("RunOnce")
+            if val is not None:
+                cls.RUN_ONCE = val
+            val = data.get("ProcessVideo")
+            if val is not None:
+                cls.PROCESS_VIDEO = val
+            val = data.get("SendPoseData")
+            if val is not None:
+                cls.SEND_POSE_DATA = val
+            val = data.get("ShowImage")
+            if val is not None:
+                cls.SHOW_IMAGE = val
+            val = data.get("PrintFPS")
+            if val is not None:
+                cls.PRINT_FPS = val
+            val = data.get("Profile")
+            if val is not None:
+                cls.PROFILE = val
+            val = data.get("ProcCount")
+            if val is not None:
+                cls.PROC_COUNT = val
         return super(WorbotsConfig, cls).__new__(cls)
 
-    def __init__(self):
+    def __init__(self, path: Optional[str] = "config.json"):
         pass
 
     def getKey(self, key) -> any:

@@ -1,32 +1,34 @@
 import cv2
 from typing import Any, List, Union
 import numpy as np
-import math
 from config import WorbotsConfig
 from wpimath.geometry import *
 from worbotsDetection import Detection, PoseDetection
 from .worbotsPoseCalculator import PoseCalculator, Pose3d
-from network import WorbotsTables
 import os
+from typing import Optional
 
 class WorbotsVision:
-    worConfig = WorbotsConfig()
-    mtx, dist = worConfig.getCameraIntrinsicsFromJSON()
+    worConfig: WorbotsConfig
     axis_len = 0.1
     poseCalc = PoseCalculator()
-    tag_size = worConfig.TAG_SIZE_METERS
-    obj_1 = [-tag_size/2, tag_size/2, 0.0]
-    obj_2 = [tag_size/2, tag_size/2, 0.0]
-    obj_3 = [tag_size/2, -tag_size/2, 0.0]
-    obj_4 = [-tag_size/2, -tag_size/2, 0.0]
-    obj_all = obj_1 + obj_2 + obj_3 + obj_4
-    objPoints = np.array(obj_all).reshape(4,3)
+    
     axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
     apriltagDict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_APRILTAG_16h5)
     detectorParams = cv2.aruco.DetectorParameters()
     detector = cv2.aruco.ArucoDetector()
 
-    def __init__(self, hasCamera: bool = True):
+    def __init__(self, hasCamera: bool = True, configPath: Optional[str] = None):
+        self.worConfig = WorbotsConfig(configPath)
+        self.mtx, dist = self.worConfig.getCameraIntrinsicsFromJSON()
+        self.tag_size = self.worConfig.TAG_SIZE_METERS
+        self.obj_1 = [-self.tag_size/2, self.tag_size/2, 0.0]
+        self.obj_2 = [self.tag_size/2, self.tag_size/2, 0.0]
+        self.obj_3 = [self.tag_size/2, -self.tag_size/2, 0.0]
+        self.obj_4 = [-self.tag_size/2, -self.tag_size/2, 0.0]
+        self.obj_all = self.obj_1 + self.obj_2 + self.obj_3 + self.obj_4
+        self.objPoints = np.array(self.obj_all).reshape(4,3)
+
         # self.detectorParams.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_APRILTAG
         # self.detectorParams.maxMarkerPerimeterRate = 3.5
         self.detectorParams.minDistanceToBorder = 10

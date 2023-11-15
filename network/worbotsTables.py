@@ -6,7 +6,7 @@ from wpimath.geometry import *
 from typing import Optional
 
 class WorbotsTables:
-    config = WorbotsConfig()
+    config: WorbotsConfig
     ntInstance = None
 
     # Output Publishers
@@ -16,7 +16,8 @@ class WorbotsTables:
     # Config Subscribers
     cameraIdSubscriber: ntcore.IntegerSubscriber
 
-    def __init__(self):
+    def __init__(self, configPath: Optional[str]):
+        self.config = WorbotsConfig(configPath)
         self.ntInstance = ntcore.NetworkTableInstance.getDefault()
         if self.config.SIM_MODE:
             self.ntInstance.setServer("127.0.0.1")
