@@ -19,33 +19,32 @@ def main(configPath: Optional[str]):
     prof = cProfile.Profile()
     prof.enable()
 
-    config = WorbotsConfig(configPath)
-    camera = WorbotsCamera(configPath)
-    output = Output(configPath)
-    
-    procCount = config.PROC_COUNT
+    camera = None
+    output = None
+    processors = None
 
-    outQueue: Queue = Queue()
-    processors: List[Processor] = []
     try:
+        config = WorbotsConfig(configPath)
+        output = Output(configPath)
+        
+        procCount = config.PROC_COUNT
+
+        outQueue: Queue = Queue()
+        processors: List[Processor] = []
+        camQueues: List[Queue] = []
         for i in range(procCount):
-            processors.append(Processor(i, configPath, outQueue))
+            proc = Processor(i, configPath, outQueue)
+            processors.append(proc)
+            camQueues.append(proc.getInQueue())
+
+        camera = WorbotsCamera(configPath, camQueues)
         
         # Used so that the printed FPS is only updated every couple of frames so it doesnt look
         # so jittery
         i = 0
-        processorIndex = 0
         timeWhenLastFrameDone = time.time()
         averageFps = MovingAverage(80)
         while True:
-            # Send frames from the camera to one of the processors
-            frame = camera.getFrame()
-            if frame is not None:
-                processors[processorIndex].sendCameraFrame(frame)
-                processorIndex += 1
-                if processorIndex > procCount - 1:
-                    processorIndex = 0
-
             # Get any processed frames from the processors
             try:
                 frameData: FrameData = outQueue.get(timeout=0.001)
@@ -55,8 +54,7 @@ def main(configPath: Optional[str]):
                 output.sendPoseDetection(DetectionData(frameData.poseData, frameData.timestamp))
 
                 if frameData.frame is not None:
-                    output.sendFrame(frameData.frame)
-                    
+                    output.sendFrame(frameData.frame) 
 
                 elapsed = time.time() - timeWhenLastFrameDone
                 if elapsed != 0.0:
@@ -81,10 +79,13 @@ def main(configPath: Optional[str]):
     prof.dump_stats("prof")
 
     print("Stopping!")
-    camera.stop()
-    output.stop()
-    for proc in processors:
-        proc.stop()
+    if camera is not None:
+        camera.stop()
+    if output is not None:
+        output.stop()
+    if processors is not None:
+        for proc in processors:
+            proc.stop()
 
 class FrameData:
     frame: Any
@@ -111,9 +112,8 @@ class Processor:
         self.proc = Process(target=runProcessor, args=(index, configPath, self.inQueue, outQueue, self.terminate,), name="Vision Processor")
         self.proc.start()
 
-    def sendCameraFrame(self, frame: Optional[Any]):
-        if frame is not None:
-            self.inQueue.put(frame)
+    def getInQueue(self) -> Queue:
+        return self.inQueue
 
     def stop(self):
         self.terminate.set()

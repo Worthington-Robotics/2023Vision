@@ -1,5 +1,5 @@
 from queue import Empty
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, List
 import cv2
 from multiprocessing import Process, Queue
 from cProfile import Profile
@@ -9,31 +9,28 @@ from config.worbotsConfig import WorbotsConfig
 
 class WorbotsCamera:
     proc: Process
-    queue: Queue = Queue()
     
-    def __init__(self, configPath: Optional[str]):
-        self.proc = Process(target=runCameraThread, args=(configPath, self.queue,), name="Camera Process")
+    def __init__(self, configPath: Optional[str], out: List[Queue]):
+        self.proc = Process(target=runCameraThread, args=(configPath, out,), name="Camera Process")
         self.proc.start()
-
-    def getFrame(self) -> Union[Any, None]:
-        try:
-            return self.queue.get(timeout=0.001)
-        except Empty:
-            return None
 
     def stop(self):
         self.proc.terminate()
 
-def runCameraThread(configPath: Optional[str], out: Queue):
+def runCameraThread(configPath: Optional[str], out: List[Queue]):
     prof = Profile()
     config = WorbotsConfig(configPath)
     prof.enable()
     cam = ThreadCamera(configPath)
 
+    queueIndex = 0
     while True:
         frame = cam.getRawFrame()
         if frame is not None:
-            out.put(frame)
+            out[queueIndex].put(frame)
+            queueIndex += 1
+            if queueIndex >= len(out):
+                queueIndex = 0
 
         if config.RUN_ONCE:
             break
@@ -57,7 +54,7 @@ class ThreadCamera:
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
             # self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
             # self.cap.set(cv2.CAP_PROP_HW_ACCELERATION, 1.0)
-            # self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
+            self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
 
         if self.cap.isOpened():
             print(f"Initialized camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
