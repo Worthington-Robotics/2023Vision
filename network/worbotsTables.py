@@ -1,11 +1,9 @@
-import collections
-import time
 import ntcore
 import math
-import numpy as np
 from config import WorbotsConfig
-from worbotsDetection import Detection, PoseDetection
+from worbotsDetection import PoseDetection
 from wpimath.geometry import *
+from typing import Optional
 
 class WorbotsTables:
     config = WorbotsConfig()
@@ -35,7 +33,7 @@ class WorbotsTables:
         configTable.getBooleanTopic("liveCalib").publish().set(False)
         self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
-    def sendPoseDetection(self, poseDetection: PoseDetection | None, timestamp: float):
+    def sendPoseDetection(self, poseDetection: Optional[PoseDetection], timestamp: float):
         if poseDetection is not None:
             dataArray = [0.0]
             dataArray[0] = 1.0

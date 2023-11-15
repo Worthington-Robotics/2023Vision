@@ -1,9 +1,7 @@
-import multiprocessing
 from queue import Empty
-from typing import Any
+from typing import Any, Union
 import cv2
-from multiprocessing import Process, Pipe, Queue
-from multiprocessing.connection import Connection
+from multiprocessing import Process, Queue
 from cProfile import Profile
 
 from config.worbotsConfig import WorbotsConfig
@@ -15,11 +13,10 @@ class WorbotsCamera:
     worConfig = WorbotsConfig()
     
     def __init__(self, runOnce = False):
-        send, self.rec = Pipe()
         self.proc = Process(target=runCameraThread, args=(self.queue, runOnce,), name="Camera Process")
         self.proc.start()
 
-    def getFrame(self) -> Any | None:
+    def getFrame(self) -> Union[Any, None]:
         try:
             return self.queue.get(timeout=0.001)
         except Empty:
@@ -49,7 +46,7 @@ class ThreadCamera:
 
     def __init__(self):
         if self.worConfig.USE_GSTREAMER:
-            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate=60/1 ! jpegdec ! appsink", cv2.CAP_GSTREAMER)
+            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1", cv2.CAP_GSTREAMER)
         else:
             self.cap = cv2.VideoCapture(0)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
@@ -59,12 +56,12 @@ class ThreadCamera:
             # self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
 
         if self.cap.isOpened():
-            print(f"Initialized Camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
+            print(f"Initialized camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
             print(f"Camera running at {self.cap.get(cv2.CAP_PROP_FPS)} fps")
         else:
-            print("Failed to initialize Camera")
+            print("Failed to initialize camera")
 
-    def getRawFrame(self) -> Any | None:
+    def getRawFrame(self) -> Union[Any, None]:
         ret, frame = self.cap.read()
         if ret:
             return frame

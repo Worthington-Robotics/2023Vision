@@ -177,7 +177,7 @@ class WorbotsVision:
             cv2.aruco.drawDetectedMarkers(frame, corners, ids, (0, 0, 255))
         return frame, returnArray
     
-    def getRawFrame(self) -> Any | None:
+    def getRawFrame(self) -> Union[Any, None]:
         if not self.cap.isOpened():
             return None
         ret = self.cap.grab()
@@ -189,10 +189,10 @@ class WorbotsVision:
         else:
             return None
     
-    def getAndProcessFrame(self) -> (Any | None, PoseDetection | None):
+    def getAndProcessFrame(self) -> (Union[Any, None], Union[PoseDetection, None]):
         return self.processFrame(self.getRawFrame())
  
-    def processFrame(self, frame: Any | None) -> (Any | None, PoseDetection | None):
+    def processFrame(self, frame: Union[Any, None]) -> (Union[Any, None], Union[PoseDetection, None]):
         if frame is None:
             return None, None
         

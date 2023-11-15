@@ -1,9 +1,9 @@
 import cProfile
 from queue import Empty
 import sys
-from multiprocessing import Process, Queue, Value, Event
+from multiprocessing import Process, Queue, Event
 import time
-from typing import Any
+from typing import Any, Union, List, Optional
 import cv2
 from wpimath.geometry import *
 from cscore import CameraServer
@@ -36,7 +36,7 @@ def main():
     procCount = 1
 
     outQueue: Queue = Queue()
-    processors: list[Processor] = []
+    processors: List[Processor] = []
     try:
         for i in range(procCount):
             processors.append(Processor(i, outQueue))
@@ -98,10 +98,10 @@ def main():
 
 class FrameData:
     frame: Any
-    poseData: PoseDetection | None
+    poseData: Optional[PoseDetection]
     timestamp: float
     fps: float
-    averageFps: float | None
+    averageFps: Optional[float]
 
     def __init__(self, frame, poseData, timestamp, fps, averageFps):
         self.frame = frame
@@ -121,7 +121,7 @@ class Processor:
         self.proc = Process(target=runProcessor, args=(index, self.inQueue, outQueue, self.terminate,), name="Vision Processor")
         self.proc.start()
 
-    def sendCameraFrame(self, frame: Any | None):
+    def sendCameraFrame(self, frame: Optional[Any]):
         if frame is not None:
             self.inQueue.put(frame)
 
@@ -180,7 +180,7 @@ def runProcessor(index: int, inQueue: Queue, outQueue: Queue, terminate: Event):
         prof.dump_stats("proc_prof")
 
 class DetectionData:
-    poseData: PoseDetection | None
+    poseData: Optional[PoseDetection]
     timestamp: float
 
     def __init__(self, poseData, timestamp):
@@ -197,11 +197,11 @@ class Output:
         self.proc = Process(target=runOutput, args=(self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output")
         self.proc.start()
 
-    def sendPoseDetection(self, detection: DetectionData | None):
+    def sendPoseDetection(self, detection: Optional[DetectionData]):
         if detection is not None:
             self.detectionQueue.put(detection)
 
-    def sendFrame(self, frame: Any | None):
+    def sendFrame(self, frame: Optional[Any]):
         if frame is not None:
             self.frameQueue.put(frame)
 
