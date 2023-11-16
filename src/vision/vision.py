@@ -1,12 +1,11 @@
 import cv2
 from typing import Any, List, Union
 import numpy as np
-from config import WorbotsConfig
+from config import ConfigPaths, WorbotsConfig
 from wpimath.geometry import *
 from detection import Detection, PoseDetection
 from .poseCalculator import PoseCalculator, Pose3d
 import os
-from typing import Optional
 
 class WorbotsVision:
     worConfig: WorbotsConfig
@@ -18,9 +17,9 @@ class WorbotsVision:
     detectorParams = cv2.aruco.DetectorParameters()
     detector = cv2.aruco.ArucoDetector()
 
-    def __init__(self, hasCamera: bool = True, configPath: Optional[str] = None):
-        self.worConfig = WorbotsConfig(configPath)
-        self.mtx, dist = self.worConfig.getCameraIntrinsicsFromJSON()
+    def __init__(self, configPaths: ConfigPaths):
+        self.worConfig = WorbotsConfig(configPaths)
+        self.mtx, self.dist = self.worConfig.getCameraIntrinsicsFromJSON()
         self.tag_size = self.worConfig.TAG_SIZE_METERS
         self.obj_1 = [-self.tag_size/2, self.tag_size/2, 0.0]
         self.obj_2 = [self.tag_size/2, self.tag_size/2, 0.0]
@@ -34,41 +33,6 @@ class WorbotsVision:
         self.detectorParams.minDistanceToBorder = 10
         self.detector.setDetectorParameters(self.detectorParams)
         self.detector.setDictionary(self.apriltagDict)
-        if hasCamera:
-            self.createBaseCamera()
-            if self.cap.isOpened():
-                print(f"Initialized Camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
-                print(f"Camera running at {self.cap.get(cv2.CAP_PROP_FPS)} fps")
-            else:
-                print("Failed to initialize Camera")
-
-    def createBaseCamera(self):
-        if self.worConfig.USE_GSTREAMER:
-            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate=60/1 ! jpegdec ! appsink", cv2.CAP_GSTREAMER)
-        else:
-            self.cap = cv2.VideoCapture(0)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
-            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-            self.cap.set(cv2.CAP_PROP_HW_ACCELERATION, 1.0)
-            self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
-
-    def setCamResolution(self, width, height):
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-
-    def openMain(self):
-        while True:
-            ret, frame = self.cap.read()
-            frameCopy = frame.copy()
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_APRILTAG_16h5)
-            detectorParams = cv2.aruco.DetectorParameters()
-            (corners, ids, rejected) = cv2.aruco.detectMarkers(image=gray, dictionary=dictionary, parameters=detectorParams)
-            cv2.aruco.drawDetectedMarkers(image=frameCopy, corners=corners, ids=ids)
-            cv2.imshow("out",frameCopy)
-            if (cv2.waitKey(1) & 0xFF == ord('q')):
-                break
 
     def calibrateCameraImages(self, folderName):
         images = os.listdir(folderName)
@@ -178,21 +142,6 @@ class WorbotsVision:
                 frame = cv2.drawFrameAxes(frame, self.mtx, self.dist, rvec, tvec, self.axis_len)
             cv2.aruco.drawDetectedMarkers(frame, corners, ids, (0, 0, 255))
         return frame, returnArray
-    
-    def getRawFrame(self) -> Union[Any, None]:
-        if not self.cap.isOpened():
-            return None
-        ret = self.cap.grab()
-        if not ret:
-            return None
-        ret, frame = self.cap.read()
-        if ret:
-            return frame
-        else:
-            return None
-    
-    def getAndProcessFrame(self) -> (Union[Any, None], Union[PoseDetection, None]):
-        return self.processFrame(self.getRawFrame())
  
     def processFrame(self, frame: Union[Any, None]) -> (Union[Any, None], Union[PoseDetection, None]):
         if frame is None:

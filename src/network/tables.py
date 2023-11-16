@@ -1,6 +1,6 @@
 import ntcore
 import math
-from config import WorbotsConfig
+from config import ConfigPaths, WorbotsConfig
 from detection import PoseDetection
 from wpimath.geometry import *
 from typing import Optional
@@ -16,8 +16,8 @@ class WorbotsTables:
     # Config Subscribers
     cameraIdSubscriber: ntcore.IntegerSubscriber
 
-    def __init__(self, configPath: Optional[str]):
-        self.config = WorbotsConfig(configPath)
+    def __init__(self, configPaths: ConfigPaths):
+        self.config = WorbotsConfig(configPaths)
         self.ntInstance = ntcore.NetworkTableInstance.getDefault()
         if self.config.SIM_MODE:
             self.ntInstance.setServer("127.0.0.1")

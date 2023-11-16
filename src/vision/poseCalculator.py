@@ -7,7 +7,7 @@ from wpimath.geometry import *
 from robotpy_apriltag import *
 
 class PoseCalculator:
-    config = WorbotsConfig()
+    config: WorbotsConfig
     aprilTagLayout = AprilTagFieldLayout("2023-chargedup.json")
     tagPoseArray = np.array([])
     tagPoseArray = np.append(tagPoseArray, aprilTagLayout.getTagPose(1))

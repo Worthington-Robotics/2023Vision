@@ -4,16 +4,16 @@ import cv2
 from cProfile import Profile
 from threading import Thread, Event
 
-from config import WorbotsConfig
+from config import ConfigPaths, WorbotsConfig
 
 class WorbotsCamera:
     thread: Thread
     queue = Queue(1)
     stop: Event
     
-    def __init__(self, configPath: Optional[str]):
+    def __init__(self, configPaths: ConfigPaths):
         self.stop = Event()
-        self.thread = Thread(target=runCameraThread, args=(self.stop, configPath, self.queue,), name="Camera Thread", daemon=True)
+        self.thread = Thread(target=runCameraThread, args=(self.stop, configPaths, self.queue,), name="Camera Thread", daemon=True)
         self.thread.start()
 
     def getFrame(self) -> Optional[Any]:
@@ -26,11 +26,11 @@ class WorbotsCamera:
         self.stop.set()
         self.thread.join()
 
-def runCameraThread(stop: Event, configPath: Optional[str], out: Queue):
+def runCameraThread(stop: Event, configPaths: ConfigPaths, out: Queue):
     prof = Profile()
-    config = WorbotsConfig(configPath)
+    config = WorbotsConfig(configPaths)
     prof.enable()
-    cam = ThreadCamera(configPath)
+    cam = ThreadCamera(configPaths)
 
     while not stop.is_set():
         frame = cam.getRawFrame()
@@ -51,8 +51,8 @@ class ThreadCamera:
     worConfig: WorbotsConfig
     cap: cv2.VideoCapture
 
-    def __init__(self, configPath: Optional[str]):
-        self.worConfig = WorbotsConfig(configPath)
+    def __init__(self, configPaths: ConfigPaths):
+        self.worConfig = WorbotsConfig(configPaths)
         if self.worConfig.USE_GSTREAMER:
             print("Initializing camera with GStreamer...")
             self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1", cv2.CAP_GSTREAMER)

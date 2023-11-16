@@ -1,10 +1,17 @@
 import json
 import numpy as np
 from typing import Optional, Dict
+   
+class ConfigPaths:
+    path: Optional[str] = "config.json"
+    calibPath: Optional[str] = "calibration.json"
+
+    def __init__(self, path, calibPath):
+        self.path = path
+        self.calibPath = calibPath
 
 class WorbotsConfig:
-    CONFIG_FILENAME = "config.json"
-    CALIBRATION_FILENAME = "calibration.json"
+    paths: ConfigPaths
 
     CAMERA_ID = 0
     TEAM_NUMBER = 4145
@@ -25,10 +32,8 @@ class WorbotsConfig:
     # Should be disabled for grayscale cameras
     MAKE_BW = False
 
-    def __new__(cls, path: Optional[str] = "config.json"):
-        if path is None:
-            path = "config.json"
-        with open(path, "r") as read_file:
+    def __new__(cls, paths: ConfigPaths):
+        with open(paths.path, "r") as read_file:
             data: Dict = json.load(read_file)
 
             val = data.get("CameraId")
@@ -81,8 +86,8 @@ class WorbotsConfig:
                 cls.MAKE_BW = val
         return super(WorbotsConfig, cls).__new__(cls)
 
-    def __init__(self, path: Optional[str] = "config.json"):
-        pass
+    def __init__(self, paths: ConfigPaths):
+        self.paths = paths
 
     def getKey(self, key) -> any:
         return WorbotsConfig.data[key]
@@ -93,12 +98,12 @@ class WorbotsConfig:
             "cameraDist": cameraDist.tolist()
         }
 
-        with open(self.CALIBRATION_FILENAME, "w") as f:
+        with open(self.paths.calibPath, "w") as f:
             json.dump(intrinsics, f)
 
     def getCameraIntrinsicsFromJSON(self):
         try:
-            with open(self.CALIBRATION_FILENAME, "r") as f:
+            with open(self.paths.calibPath, "r") as f:
                 data = json.load(f)
 
             cameraMatrix = np.array(data["cameraMatrix"])

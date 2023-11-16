@@ -11,12 +11,12 @@ from cscore import CameraServer
 from utils import MovingAverage
 from vision import WorbotsVision
 from network import WorbotsTables
-from config import WorbotsConfig
+from config import ConfigPaths, WorbotsConfig
 from vision.camera import WorbotsCamera
 from detection import PoseDetection
 from argparse import ArgumentParser
 
-def main(configPath: Optional[str]):
+def main(configPaths: ConfigPaths):
     prof = cProfile.Profile()
     prof.enable()
 
@@ -24,11 +24,11 @@ def main(configPath: Optional[str]):
     output = None
 
     try:
-        config = WorbotsConfig(configPath)
-        output = Output(configPath)
-        vision = WorbotsVision(hasCamera=False, configPath=configPath)
+        config = WorbotsConfig(configPaths)
+        output = Output(configPaths)
+        vision = WorbotsVision(configPaths)
 
-        camera = WorbotsCamera(configPath)
+        camera = WorbotsCamera(configPaths)
         
         # Used so that the printed FPS is only updated every couple of frames so it doesnt look
         # so jittery
@@ -98,9 +98,9 @@ class Output:
     frameQueue = queue.Queue()
     stop: Event
 
-    def __init__(self, configPath: Optional[str]):
+    def __init__(self, configPaths: ConfigPaths):
         self.stop = Event()
-        self.thread = Thread(target=runOutput, args=(self.stop, configPath, self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output", daemon=True)
+        self.thread = Thread(target=runOutput, args=(self.stop, configPaths, self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output", daemon=True)
         self.thread.start()
 
     def sendPoseDetection(self, detection: Optional[DetectionData]):
@@ -118,9 +118,9 @@ class Output:
         self.stop.set()
         self.thread.join()
 
-def runOutput(stop: Event, configPath: Optional[str], detectionQueue: queue.Queue, fpsQueue: queue.Queue, frameQueue: queue.Queue):
-    config = WorbotsConfig(configPath)
-    network = WorbotsTables(configPath)
+def runOutput(stop: Event, configPaths: ConfigPaths, detectionQueue: queue.Queue, fpsQueue: queue.Queue, frameQueue: queue.Queue):
+    config = WorbotsConfig(configPaths)
+    network = WorbotsTables(configPaths)
     CameraServer.enableLogging()
     output = CameraServer.putVideo("Module"+str(config.MODULE_ID), config.RES_W, config.RES_H)
     print(f"Optimized used?: {cv2.useOptimized()}")
@@ -162,8 +162,9 @@ def runOutput(stop: Event, configPath: Optional[str], detectionQueue: queue.Queu
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("-c", "--config-path", default="config.json", help="Path to the config file. Defaults to ./config.json")
+    parser.add_argument("-C", "--calibration-path", default="calibration.json", help="Path to the camera calibration file. Defaults to ./calibration.json")
     args = parser.parse_args()
-    print(f"Config path: {args.config_path}")
+    print(f"Config path: {args.config_path} Calibration path: {args.calibration_path}")
     print(f"CUDA: {cv2.cuda.getCudaEnabledDeviceCount()}")
-        
-    main(args.config_path)
+    paths = ConfigPaths(args.config_path, args.calibration_path)
+    main(paths)
