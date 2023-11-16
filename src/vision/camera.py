@@ -29,7 +29,8 @@ class WorbotsCamera:
 def runCameraThread(stop: Event, configPaths: ConfigPaths, out: Queue):
     prof = Profile()
     config = WorbotsConfig(configPaths)
-    prof.enable()
+    if config.PROFILE:
+        prof.enable()
     cam = ThreadCamera(configPaths)
 
     while not stop.is_set():
@@ -44,8 +45,9 @@ def runCameraThread(stop: Event, configPaths: ConfigPaths, out: Queue):
         if config.RUN_ONCE:
             break
 
-    prof.disable()
-    prof.dump_stats("prof/cam_prof")
+    if config.PROFILE:
+        prof.disable()
+        prof.dump_stats("prof/cam_prof")
         
 class ThreadCamera:
     worConfig: WorbotsConfig

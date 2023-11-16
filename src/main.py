@@ -17,14 +17,15 @@ from detection import PoseDetection
 from argparse import ArgumentParser
 
 def main(configPaths: ConfigPaths):
+    config = WorbotsConfig(configPaths)
     prof = cProfile.Profile()
-    prof.enable()
+    if config.PROFILE:
+        prof.enable()
 
     camera = None
     output = None
 
     try:
-        config = WorbotsConfig(configPaths)
         output = Output(configPaths)
         vision = WorbotsVision(configPaths)
 
@@ -74,8 +75,9 @@ def main(configPaths: ConfigPaths):
     except Exception as e:
         print(e)
 
-    prof.disable()
-    prof.dump_stats("prof/prof")
+    if config.PROFILE:
+        prof.disable()
+        prof.dump_stats("prof/prof")
 
     print("Stopping!")
     if camera is not None:
