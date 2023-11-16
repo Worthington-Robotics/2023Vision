@@ -1,18 +1,19 @@
 from queue import Queue, Empty, Full
-from typing import Any, Union, Optional, List
+from typing import Any, Union, Optional
 import cv2
-# from multiprocessing import Process, Queue
 from cProfile import Profile
-from threading import Thread
+from threading import Thread, Event
 
 from config.worbotsConfig import WorbotsConfig
 
 class WorbotsCamera:
     thread: Thread
     queue = Queue(1)
+    stop: Event
     
     def __init__(self, configPath: Optional[str]):
-        self.thread = Thread(target=runCameraThread, args=(configPath, self.queue,), name="Camera Thread")
+        self.stop = Event()
+        self.thread = Thread(target=runCameraThread, args=(self.stop, configPath, self.queue,), name="Camera Thread", daemon=True)
         self.thread.start()
 
     def getFrame(self) -> Optional[Any]:
@@ -20,19 +21,24 @@ class WorbotsCamera:
             return self.queue.get(timeout=0.001)
         except Empty:
             return None
+        
+    def stop(self):
+        self.stop.set()
+        self.thread.join()
 
-def runCameraThread(configPath: Optional[str], out: Queue):
+def runCameraThread(stop: Event, configPath: Optional[str], out: Queue):
     prof = Profile()
     config = WorbotsConfig(configPath)
     prof.enable()
     cam = ThreadCamera(configPath)
 
-    while True:
+    while not stop.is_set():
         frame = cam.getRawFrame()
         if frame is not None:
             try:
                 out.put_nowait(frame)
             except Full:
+                print("Drop")
                 pass
 
         if config.RUN_ONCE:

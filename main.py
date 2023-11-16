@@ -1,10 +1,10 @@
 import cProfile
 from queue import Empty
 import queue
+from threading import Thread, Event
 import sys
-from multiprocessing import Process, Queue, Event
 import time
-from typing import Any, List, Optional
+from typing import Any, Optional
 import cv2
 from wpimath.geometry import *
 from cscore import CameraServer
@@ -48,9 +48,6 @@ def main(configPath: Optional[str]):
             if config.PROCESS_VIDEO:
                 frame, poseDetection = vision.processFrame(frame)
 
-            # frameData = FrameData(frame, poseDetection, start, 0.0, 0.0)
-            # outQueue.put(frameData)
-
             # Send processed data to the output
             if poseDetection is not None:
                 output.sendPoseDetection(DetectionData(poseDetection, start))
@@ -81,6 +78,8 @@ def main(configPath: Optional[str]):
     prof.dump_stats("prof")
 
     print("Stopping!")
+    if camera is not None:
+        camera.stop()
     if output is not None:
         output.stop()
 
@@ -93,14 +92,16 @@ class DetectionData:
         self.timestamp = timestamp
 
 class Output:
-    proc: Process
-    detectionQueue = Queue()
-    fpsQueue = Queue()
-    frameQueue = Queue()
+    thread: Thread
+    detectionQueue = queue.Queue()
+    fpsQueue = queue.Queue()
+    frameQueue = queue.Queue()
+    stop: Event
 
     def __init__(self, configPath: Optional[str]):
-        self.proc = Process(target=runOutput, args=(configPath, self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output")
-        self.proc.start()
+        self.stop = Event()
+        self.thread = Thread(target=runOutput, args=(self.stop, configPath, self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output", daemon=True)
+        self.thread.start()
 
     def sendPoseDetection(self, detection: Optional[DetectionData]):
         if detection is not None:
@@ -114,9 +115,10 @@ class Output:
         self.fpsQueue.put(fps)
 
     def stop(self):
-        self.proc.terminate()
+        self.stop.set()
+        self.thread.join()
 
-def runOutput(configPath: Optional[str], detectionQueue: Queue, fpsQueue: Queue, frameQueue: Queue):
+def runOutput(stop: Event, configPath: Optional[str], detectionQueue: queue.Queue, fpsQueue: queue.Queue, frameQueue: queue.Queue):
     config = WorbotsConfig(configPath)
     network = WorbotsTables(configPath)
     CameraServer.enableLogging()
@@ -124,10 +126,10 @@ def runOutput(configPath: Optional[str], detectionQueue: Queue, fpsQueue: Queue,
     print(f"Optimized used?: {cv2.useOptimized()}")
     network.sendConfig()
     
-    while True:
+    while not stop.is_set():
         # Pose detection
         try:
-            detection: DetectionData = detectionQueue.get_nowait()
+            detection: DetectionData = detectionQueue.get(timeout=0.001)
         except Empty:
             detection = None
 
@@ -136,7 +138,7 @@ def runOutput(configPath: Optional[str], detectionQueue: Queue, fpsQueue: Queue,
 
         # Camera frames
         try:
-            frame: Any = frameQueue.get_nowait()
+            frame: Any = frameQueue.get(timeout=0.001)
         except Empty:
             frame = None
 
@@ -149,7 +151,7 @@ def runOutput(configPath: Optional[str], detectionQueue: Queue, fpsQueue: Queue,
             break
         # FPS
         try:
-            fps: float = fpsQueue.get_nowait()
+            fps: float = fpsQueue.get(timeout=0.001)
             network.sendFps(fps)
         except Empty:
             pass
