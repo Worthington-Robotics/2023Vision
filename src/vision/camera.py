@@ -4,7 +4,7 @@ import cv2
 from cProfile import Profile
 from threading import Thread, Event
 
-from config.worbotsConfig import WorbotsConfig
+from config import WorbotsConfig
 
 class WorbotsCamera:
     thread: Thread
@@ -45,7 +45,7 @@ def runCameraThread(stop: Event, configPath: Optional[str], out: Queue):
             break
 
     prof.disable()
-    prof.dump_stats("cam_prof")
+    prof.dump_stats("prof/cam_prof")
         
 class ThreadCamera:
     worConfig: WorbotsConfig

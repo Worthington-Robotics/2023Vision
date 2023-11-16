@@ -1,1 +1,0 @@
-from .worbotsTables import WorbotsTables

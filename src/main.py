@@ -12,8 +12,8 @@ from utils import MovingAverage
 from vision import WorbotsVision
 from network import WorbotsTables
 from config import WorbotsConfig
-from vision.worbotsCamera import WorbotsCamera
-from worbotsDetection import PoseDetection
+from vision.camera import WorbotsCamera
+from detection import PoseDetection
 from argparse import ArgumentParser
 
 def main(configPath: Optional[str]):
@@ -75,7 +75,7 @@ def main(configPath: Optional[str]):
         print(e)
 
     prof.disable()
-    prof.dump_stats("prof")
+    prof.dump_stats("prof/prof")
 
     print("Stopping!")
     if camera is not None:

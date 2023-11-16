@@ -3,8 +3,8 @@ from typing import Any, List, Union
 import numpy as np
 from config import WorbotsConfig
 from wpimath.geometry import *
-from worbotsDetection import Detection, PoseDetection
-from .worbotsPoseCalculator import PoseCalculator, Pose3d
+from detection import Detection, PoseDetection
+from .poseCalculator import PoseCalculator, Pose3d
 import os
 from typing import Optional
 

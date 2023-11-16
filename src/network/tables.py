@@ -1,7 +1,7 @@
 import ntcore
 import math
 from config import WorbotsConfig
-from worbotsDetection import PoseDetection
+from detection import PoseDetection
 from wpimath.geometry import *
 from typing import Optional
 
