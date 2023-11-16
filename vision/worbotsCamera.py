@@ -46,7 +46,7 @@ class ThreadCamera:
         self.worConfig = WorbotsConfig(configPath)
         if self.worConfig.USE_GSTREAMER:
             print("Initializing camera with GStreamer...")
-            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1", cv2.CAP_GSTREAMER)
+            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1", cv2.CAP_GSTREAMER)
         else:
             print("Initializing camera with default backend...")
             self.cap = cv2.VideoCapture(0)

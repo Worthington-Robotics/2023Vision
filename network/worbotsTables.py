@@ -36,27 +36,27 @@ class WorbotsTables:
 
     def sendPoseDetection(self, poseDetection: Optional[PoseDetection], timestamp: float):
         if poseDetection is not None:
-            dataArray = [0.0]
-            dataArray[0] = 1.0
+            dataArray = [20]
+            dataArray[0] = 1
             if poseDetection.err1 and poseDetection.pose1 is not None:
                 dataArray.append(poseDetection.err1)
-                dataArray.append(poseDetection.pose1.X())
-                dataArray.append(poseDetection.pose1.Y())
-                dataArray.append(poseDetection.pose1.Z())
-                dataArray.append(poseDetection.pose1.rotation().getQuaternion().W())
-                dataArray.append(poseDetection.pose1.rotation().getQuaternion().X())
-                dataArray.append(poseDetection.pose1.rotation().getQuaternion().Y())
-                dataArray.append(poseDetection.pose1.rotation().getQuaternion().Z())
+                dataArray.append(poseDetection.pose1.x)
+                dataArray.append(poseDetection.pose1.y)
+                dataArray.append(poseDetection.pose1.z)
+                dataArray.append(poseDetection.pose1.rw)
+                dataArray.append(poseDetection.pose1.rx)
+                dataArray.append(poseDetection.pose1.ry)
+                dataArray.append(poseDetection.pose1.rz)
             if poseDetection.err2 and poseDetection.pose2 is not None:
                 dataArray[0] = 2.0
                 dataArray.append(poseDetection.err2)
-                dataArray.append(poseDetection.pose2.X())
-                dataArray.append(poseDetection.pose2.Y())
-                dataArray.append(poseDetection.pose2.Z())
-                dataArray.append(poseDetection.pose2.rotation().getQuaternion().W())
-                dataArray.append(poseDetection.pose2.rotation().getQuaternion().X())
-                dataArray.append(poseDetection.pose2.rotation().getQuaternion().Y())
-                dataArray.append(poseDetection.pose2.rotation().getQuaternion().Z())
+                dataArray.append(poseDetection.pose2.x)
+                dataArray.append(poseDetection.pose2.y)
+                dataArray.append(poseDetection.pose2.z)
+                dataArray.append(poseDetection.pose2.rw)
+                dataArray.append(poseDetection.pose2.rx)
+                dataArray.append(poseDetection.pose2.ry)
+                dataArray.append(poseDetection.pose2.rz)
             for tag_id in poseDetection.tag_ids:
                 # Array check
                 # if hasattr(tag_id, "__len__"):

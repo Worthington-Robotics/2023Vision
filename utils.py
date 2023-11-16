@@ -1,9 +1,8 @@
-from multiprocessing import Queue
-from typing import Any
+from typing import List
 
 class MovingAverage:
 	n: int
-	items: list[float] = []
+	items: List[float] = []
 
 	def __init__(self, n: int):
 		self.n = n
