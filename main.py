@@ -1,5 +1,6 @@
 import cProfile
 from queue import Empty
+import queue
 import sys
 from multiprocessing import Process, Queue, Event
 import time
@@ -21,23 +22,13 @@ def main(configPath: Optional[str]):
 
     camera = None
     output = None
-    processors = None
 
     try:
         config = WorbotsConfig(configPath)
         output = Output(configPath)
-        
-        procCount = config.PROC_COUNT
+        vision = WorbotsVision(hasCamera=False, configPath=configPath)
 
-        outQueue: Queue = Queue()
-        processors: List[Processor] = []
-        camQueues: List[Queue] = []
-        for i in range(procCount):
-            proc = Processor(i, configPath, outQueue)
-            processors.append(proc)
-            camQueues.append(proc.getInQueue())
-
-        camera = WorbotsCamera(configPath, camQueues)
+        camera = WorbotsCamera(configPath)
         
         # Used so that the printed FPS is only updated every couple of frames so it doesnt look
         # so jittery
@@ -45,33 +36,44 @@ def main(configPath: Optional[str]):
         timeWhenLastFrameDone = time.time()
         averageFps = MovingAverage(80)
         while True:
-            # Get any processed frames from the processors
-            try:
-                frameData: FrameData = outQueue.get(timeout=0.001)
-            except Empty:
-                frameData = None
-            if frameData is not None:
-                output.sendPoseDetection(DetectionData(frameData.poseData, frameData.timestamp))
+            start = time.time()
+            # Try to get a frame from the camera
+            frame = camera.getFrame()
 
-                if frameData.frame is not None:
-                    output.sendFrame(frameData.frame) 
+            # Process the frame
+            poseDetection = None
 
-                elapsed = time.time() - timeWhenLastFrameDone
-                if elapsed != 0.0:
-                    fps = 1 / elapsed
-                    averageFps.add(fps)
+            if frame is None:
+                continue
+            if config.PROCESS_VIDEO:
+                frame, poseDetection = vision.processFrame(frame)
 
-                timeWhenLastFrameDone = time.time()
+            # frameData = FrameData(frame, poseDetection, start, 0.0, 0.0)
+            # outQueue.put(frameData)
 
-                if config.PRINT_FPS:
-                    if i % 10000 == 0:
-                        sys.stdout.write(f"\rFPS: {averageFps.average()}")
-                        sys.stdout.flush()
+            # Send processed data to the output
+            if poseDetection is not None:
+                output.sendPoseDetection(DetectionData(poseDetection, start))
 
-                output.sendFps(averageFps.average())
+            if frame is not None:
+                output.sendFrame(frame) 
 
-                if config.RUN_ONCE:
-                    break
+            elapsed = time.time() - timeWhenLastFrameDone
+            if elapsed != 0.0:
+                fps = 1 / elapsed
+                averageFps.add(fps)
+
+            timeWhenLastFrameDone = time.time()
+
+            if config.PRINT_FPS:
+                if i % 10000 == 0:
+                    sys.stdout.write(f"\rFPS: {averageFps.average()}")
+                    sys.stdout.flush()
+
+            output.sendFps(averageFps.average())
+
+            if config.RUN_ONCE:
+                break
     except Exception as e:
         print(e)
 
@@ -79,86 +81,8 @@ def main(configPath: Optional[str]):
     prof.dump_stats("prof")
 
     print("Stopping!")
-    if camera is not None:
-        camera.stop()
     if output is not None:
         output.stop()
-    if processors is not None:
-        for proc in processors:
-            proc.stop()
-
-class FrameData:
-    frame: Any
-    poseData: Optional[PoseDetection]
-    timestamp: float
-    fps: float
-    averageFps: Optional[float]
-
-    def __init__(self, frame, poseData, timestamp, fps, averageFps):
-        self.frame = frame
-        self.poseData = poseData
-        self.timestamp = timestamp
-        self.fps = fps
-        self.averageFps = averageFps
-
-class Processor:
-    proc: Process
-    index: int
-    inQueue = Queue()
-    terminate = Event()
-
-    def __init__(self, index: int, configPath: Optional[str], outQueue: Queue):
-        self.index = index
-        self.proc = Process(target=runProcessor, args=(index, configPath, self.inQueue, outQueue, self.terminate,), name="Vision Processor")
-        self.proc.start()
-
-    def getInQueue(self) -> Queue:
-        return self.inQueue
-
-    def stop(self):
-        self.terminate.set()
-        self.proc.terminate()
-
-def runProcessor(index: int, configPath: Optional[str], inQueue: Queue, outQueue: Queue, terminate: Event):
-    if index == 0:
-        prof = cProfile.Profile()
-        prof.enable()
-    else:
-        prof = None
-
-    vision = WorbotsVision(hasCamera=False, configPath=configPath)
-    config = WorbotsConfig(configPath)
-    
-    # vision.calibrateCameraImages("./images")
-    # vision.calibrateCamLive()
-
-    try:
-        while not terminate.is_set():
-            start = time.time()
-
-            try:
-                frame = inQueue.get(timeout=0.001)
-            except Empty:
-                frame = None
-            poseDetection = None
-
-            if frame is None:
-                continue
-            else:
-                if config.PROCESS_VIDEO:
-                    frame, poseDetection = vision.processFrame(frame)
-
-            frameData = FrameData(frame, poseDetection, start, 0.0, 0.0)
-            outQueue.put(frameData)
-
-            if config.RUN_ONCE:
-                break
-    except Exception as e:
-        print(e)
-    
-    if prof is not None:
-        prof.disable()
-        prof.dump_stats("proc_prof")
 
 class DetectionData:
     poseData: Optional[PoseDetection]

@@ -1,36 +1,39 @@
-from queue import Empty
+from queue import Queue, Empty, Full
 from typing import Any, Union, Optional, List
 import cv2
-from multiprocessing import Process, Queue
+# from multiprocessing import Process, Queue
 from cProfile import Profile
+from threading import Thread
 
 from config.worbotsConfig import WorbotsConfig
 
-
 class WorbotsCamera:
-    proc: Process
+    thread: Thread
+    queue = Queue(1)
     
-    def __init__(self, configPath: Optional[str], out: List[Queue]):
-        self.proc = Process(target=runCameraThread, args=(configPath, out,), name="Camera Process")
-        self.proc.start()
+    def __init__(self, configPath: Optional[str]):
+        self.thread = Thread(target=runCameraThread, args=(configPath, self.queue,), name="Camera Thread")
+        self.thread.start()
 
-    def stop(self):
-        self.proc.terminate()
+    def getFrame(self) -> Optional[Any]:
+        try:
+            return self.queue.get(timeout=0.001)
+        except Empty:
+            return None
 
-def runCameraThread(configPath: Optional[str], out: List[Queue]):
+def runCameraThread(configPath: Optional[str], out: Queue):
     prof = Profile()
     config = WorbotsConfig(configPath)
     prof.enable()
     cam = ThreadCamera(configPath)
 
-    queueIndex = 0
     while True:
         frame = cam.getRawFrame()
         if frame is not None:
-            out[queueIndex].put(frame)
-            queueIndex += 1
-            if queueIndex >= len(out):
-                queueIndex = 0
+            try:
+                out.put_nowait(frame)
+            except Full:
+                pass
 
         if config.RUN_ONCE:
             break
