@@ -198,6 +198,9 @@ class WorbotsVision:
         if frame is None:
             return None, None
         
+        if self.worConfig.MAKE_BW:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
         imgPoints = []
         objPoints = []
         tag_ids = []

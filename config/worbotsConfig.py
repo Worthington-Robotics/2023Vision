@@ -21,7 +21,9 @@ class WorbotsConfig:
     SHOW_IMAGE = False
     PRINT_FPS = True
     PROFILE = False
-    PROC_COUNT = 1
+    # Whether to convert the video to black and white.
+    # Should be disabled for grayscale cameras
+    MAKE_BW = False
 
     def __new__(cls, path: Optional[str] = "config.json"):
         if path is None:
@@ -74,9 +76,9 @@ class WorbotsConfig:
             val = data.get("Profile")
             if val is not None:
                 cls.PROFILE = val
-            val = data.get("ProcCount")
+            val = data.get("MakeBW")
             if val is not None:
-                cls.PROC_COUNT = val
+                cls.MAKE_BW = val
         return super(WorbotsConfig, cls).__new__(cls)
 
     def __init__(self, path: Optional[str] = "config.json"):
