@@ -238,5 +238,6 @@ if __name__ == '__main__':
     parser.add_argument("-c", "--config-path", default="config.json", help="Path to the config file. Defaults to ./config.json")
     args = parser.parse_args()
     print(f"Config path: {args.config_path}")
+    print(f"CUDA: {cv2.cuda.getCudaEnabledDeviceCount()}")
         
     main(args.config_path)
