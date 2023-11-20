@@ -30,7 +30,7 @@ class SendablePose3d:
         self.rz = rz
 
     def fromPose3d(pose: Pose3d):
-        return SendablePose3d(pose.X(), pose.Y(), pose.Z(), pose.rotation().getQuaternion().W(), pose.rotation().X(), pose.rotation().Y(), pose.rotation().Z())
+        return SendablePose3d(pose.X(), pose.Y(), pose.Z(), pose.rotation().getQuaternion().W(), pose.rotation().getQuaternion().X(), pose.rotation().getQuaternion().Y(), pose.rotation().getQuaternion().Z())
 
     def toPose3d(self) -> Pose3d:
         return Pose3d(self.x, self.y, self.z, Rotation3d(Quaternion(self.rw, self.rx, self.ry, self.rz)))

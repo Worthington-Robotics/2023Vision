@@ -35,37 +35,34 @@ class WorbotsTables:
         self.calibListener = configTable.getBooleanTopic("liveCalib").subscribe(False)
 
     def sendPoseDetection(self, poseDetection: Optional[PoseDetection], timestamp: float):
-        if poseDetection is not None:
-            dataArray = [20]
+        if poseDetection is None:
+            return
+        dataArray = [0]
+        if poseDetection.err1 and poseDetection.pose1 is not None:
             dataArray[0] = 1
-            if poseDetection.err1 and poseDetection.pose1 is not None:
-                dataArray.append(poseDetection.err1)
-                dataArray.append(poseDetection.pose1.x)
-                dataArray.append(poseDetection.pose1.y)
-                dataArray.append(poseDetection.pose1.z)
-                dataArray.append(poseDetection.pose1.rw)
-                dataArray.append(poseDetection.pose1.rx)
-                dataArray.append(poseDetection.pose1.ry)
-                dataArray.append(poseDetection.pose1.rz)
-            if poseDetection.err2 and poseDetection.pose2 is not None:
-                dataArray[0] = 2.0
-                dataArray.append(poseDetection.err2)
-                dataArray.append(poseDetection.pose2.x)
-                dataArray.append(poseDetection.pose2.y)
-                dataArray.append(poseDetection.pose2.z)
-                dataArray.append(poseDetection.pose2.rw)
-                dataArray.append(poseDetection.pose2.rx)
-                dataArray.append(poseDetection.pose2.ry)
-                dataArray.append(poseDetection.pose2.rz)
-            for tag_id in poseDetection.tag_ids:
-                # Array check
-                # if hasattr(tag_id, "__len__"):
-                #     for id in tag_id:
-                #         dataArray.append(float(id))
-                # else:
-                #     dataArray.append(float(tag_id))
-                dataArray.append(float(tag_id))
-            self.dataPublisher.set(dataArray, int(math.floor(timestamp * 1000000)))
+            dataArray.append(poseDetection.err1)
+            dataArray.append(poseDetection.pose1.x)
+            dataArray.append(poseDetection.pose1.y)
+            dataArray.append(poseDetection.pose1.z)
+            dataArray.append(poseDetection.pose1.rw)
+            dataArray.append(poseDetection.pose1.rx)
+            dataArray.append(poseDetection.pose1.ry)
+            dataArray.append(poseDetection.pose1.rz)
+        else:
+            return
+        if poseDetection.err2 and poseDetection.pose2 is not None:
+            dataArray[0] = 2
+            dataArray.append(poseDetection.err2)
+            dataArray.append(poseDetection.pose2.x)
+            dataArray.append(poseDetection.pose2.y)
+            dataArray.append(poseDetection.pose2.z)
+            dataArray.append(poseDetection.pose2.rw)
+            dataArray.append(poseDetection.pose2.rx)
+            dataArray.append(poseDetection.pose2.ry)
+            dataArray.append(poseDetection.pose2.rz)
+        for tag_id in poseDetection.tag_ids:
+            dataArray.append(float(tag_id))
+        self.dataPublisher.set(dataArray, int(math.floor(timestamp * 1000000)))
     
     def sendPose3d(self, pose: Pose3d):
         self.dataPublisher.set(self.getArrayFromPose3d(pose))
