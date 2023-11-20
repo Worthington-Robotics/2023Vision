@@ -2,13 +2,16 @@
 
 Vision projects for the 2023-2024 summer.
 
-Installation:  
-- Use `pip install -r ./setup/requirements.txt` to automatically install all of the dependencies above.
+Installation:
+- Run `setup/setup.sh` or `setup/setup.bat` depending on your operating system
 
 Dependencies:
 - OpenCV `pip install opencv-contrib-python`, build on version 4.8.0.74
 - Robot Py `pip install robotpy`
 - Python NetworkTables `pip install pyntcore`
+
+Running:
+Run `run.sh` or `run.bat` depending on your operating system. You can pass command line flags for the python program to this script
 
 Description:  
 This code uses OpenCV's built in ArUco library for detecting AprilTags. This was chosen over other libraries due to its flexibility and customization abilities.  
