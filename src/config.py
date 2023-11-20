@@ -32,6 +32,8 @@ class WorbotsConfig:
     # Should be disabled for grayscale cameras
     MAKE_BW = False
     USE_GPU = False
+    # Whether to use exact frame timestamps by querying the camera
+    USE_EXACT_TIMESTAMPS = True
 
     def __new__(cls, paths: ConfigPaths):
         with open(paths.path, "r") as read_file:
@@ -88,6 +90,9 @@ class WorbotsConfig:
             val = data.get("UseGPU")
             if val is not None:
                 cls.USE_GPU = val
+            val = data.get("UseExactTimestamps")
+            if val is not None:
+                cls.USE_EXACT_TIMESTAMPS = val
         return super(WorbotsConfig, cls).__new__(cls)
 
     def __init__(self, paths: ConfigPaths):

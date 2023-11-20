@@ -1,10 +1,20 @@
 from queue import Queue, Empty, Full
+import time
 from typing import Any, Union, Optional
 import cv2
 from cProfile import Profile
 from threading import Thread, Event
 
 from config import ConfigPaths, WorbotsConfig
+
+# A frame along with the time it was captured
+class TimedFrame:
+    frame: Any
+    timestamp: float
+
+    def __init__(self, frame: Any, timestamp: float):
+        self.frame = frame
+        self.timestamp = timestamp
 
 class WorbotsCamera:
     thread: Thread
@@ -16,7 +26,7 @@ class WorbotsCamera:
         self.thread = Thread(target=runCameraThread, args=(self.stop, configPaths, self.queue,), name="Camera Thread", daemon=True)
         self.thread.start()
 
-    def getFrame(self) -> Optional[Any]:
+    def getFrame(self) -> Optional[TimedFrame]:
         try:
             return self.queue.get()
         except Empty:
@@ -75,16 +85,20 @@ class ThreadCamera:
             self.cap.set(cv2.CAP_PROP_FPS, self.worConfig.CAM_FPS)
 
         if self.cap.isOpened():
-            print(f"Initialized camera with {self.cap.get(cv2.CAP_PROP_BACKEND)} backend")
+            print(f"Initialized camera with {self.cap.getBackendName()} backend")
             print(f"Camera running at {self.cap.get(cv2.CAP_PROP_FPS)} fps")
         else:
             print("Failed to initialize camera")
 
-    def getRawFrame(self) -> Union[Any, None]:
+    def getRawFrame(self) -> Optional[TimedFrame]:
         ret, frame = self.cap.read()
+        if self.worConfig.USE_EXACT_TIMESTAMPS:
+            timestamp = self.cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+        else:
+            timestamp = time.time()
         if ret:
             if self.worConfig.USE_GPU and self.worConfig.USE_GSTREAMER:
                 frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_I420)
-            return frame
+            return TimedFrame(frame, timestamp)
         else:
             return None

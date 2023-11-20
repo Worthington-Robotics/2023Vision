@@ -34,20 +34,24 @@ def main(configPaths: ConfigPaths):
         # Used so that the printed FPS is only updated every couple of frames so it doesnt look
         # so jittery
         averageFps = MovingAverage(80)
+        lastFrameTime = time.time()
         while True:
-            start = time.time()
             # Try to get a frame from the camera
             frame = camera.getFrame()
 
             # Process the frame
-            poseDetection = None
             if frame is None:
                 continue
-            if config.PROCESS_VIDEO:
-                frame, poseDetection = vision.processFrame(frame)
 
-            elapsed = time.time() - start
-            fps = None
+            timestamp = frame.timestamp
+            poseDetection = None
+            if config.PROCESS_VIDEO:
+                frame, poseDetection = vision.processFrame(frame.frame)
+            else:
+                frame = None
+
+            elapsed = time.time() - lastFrameTime
+            lastFrameTime = time.time()
             if elapsed != 0.0:
                 fps = 1 / elapsed
                 averageFps.add(fps)
@@ -57,7 +61,7 @@ def main(configPaths: ConfigPaths):
                 sys.stdout.flush()
 
             # Send processed data to the output
-            output.sendData(OutputData(DetectionData(poseDetection, start), frame, averageFps.average()))
+            output.sendData(OutputData(DetectionData(poseDetection, timestamp), frame, averageFps.average()))
 
             if config.RUN_ONCE:
                 break
