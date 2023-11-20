@@ -53,7 +53,7 @@ def main(configPaths: ConfigPaths):
                 averageFps.add(fps)
 
             if config.PRINT_FPS:
-                sys.stdout.write(f"\rFPS: {fps}")
+                sys.stdout.write(f"\rFPS: {averageFps.average()}")
                 sys.stdout.flush()
 
             # Send processed data to the output
@@ -122,7 +122,7 @@ def runOutput(stop: Event, configPaths: ConfigPaths, inQueue: queue.Queue):
     
     while not stop.is_set():
         try:
-            data: OutputData = inQueue.get(timeout=0.001)
+            data: OutputData = inQueue.get()
         except Empty:
             data = None
             continue

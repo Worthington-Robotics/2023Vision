@@ -12,5 +12,6 @@
 	"ProcessVideo": true,
 	"SendPoseData": true,
 	"ShowImage": false,
-	"PrintFPS": true
+	"PrintFPS": true,
+	"UseGPU": true
 }
