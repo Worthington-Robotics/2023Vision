@@ -18,7 +18,7 @@ class WorbotsCamera:
 
     def getFrame(self) -> Optional[Any]:
         try:
-            return self.queue.get(timeout=0.001)
+            return self.queue.get()
         except Empty:
             return None
         
@@ -57,7 +57,14 @@ class ThreadCamera:
         self.worConfig = WorbotsConfig(configPaths)
         if self.worConfig.USE_GSTREAMER:
             print("Initializing camera with GStreamer...")
-            self.cap = cv2.VideoCapture(f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1", cv2.CAP_GSTREAMER)
+            cmd = ""
+            if self.worConfig.USE_GPU:
+                cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegparse ! nvv4l2decoder ! nvvidconv flip-method=1 ! video/x-raw,format=I420 ! appsink max-buffers=1 drop=1"
+            else:
+                cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} always-copy=false ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=I420 ! appsink drop=1"
+            print("GStreamer command: " + cmd)
+
+            self.cap = cv2.VideoCapture(cmd, cv2.CAP_GSTREAMER)
         else:
             print("Initializing camera with default backend...")
             self.cap = cv2.VideoCapture(0)
@@ -76,6 +83,8 @@ class ThreadCamera:
     def getRawFrame(self) -> Union[Any, None]:
         ret, frame = self.cap.read()
         if ret:
+            if self.worConfig.USE_GPU and self.worConfig.USE_GSTREAMER:
+                frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_I420)
             return frame
         else:
             return None

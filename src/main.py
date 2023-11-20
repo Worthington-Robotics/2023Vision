@@ -33,8 +33,6 @@ def main(configPaths: ConfigPaths):
         
         # Used so that the printed FPS is only updated every couple of frames so it doesnt look
         # so jittery
-        i = 0
-        timeWhenLastFrameDone = time.time()
         averageFps = MovingAverage(80)
         while True:
             start = time.time()
@@ -43,32 +41,23 @@ def main(configPaths: ConfigPaths):
 
             # Process the frame
             poseDetection = None
-
             if frame is None:
                 continue
             if config.PROCESS_VIDEO:
                 frame, poseDetection = vision.processFrame(frame)
 
-            # Send processed data to the output
-            if poseDetection is not None:
-                output.sendPoseDetection(DetectionData(poseDetection, start))
-
-            if frame is not None:
-                output.sendFrame(frame) 
-
-            elapsed = time.time() - timeWhenLastFrameDone
+            elapsed = time.time() - start
+            fps = None
             if elapsed != 0.0:
                 fps = 1 / elapsed
                 averageFps.add(fps)
 
-            timeWhenLastFrameDone = time.time()
-
             if config.PRINT_FPS:
-                if i % 10000 == 0:
-                    sys.stdout.write(f"\rFPS: {averageFps.average()}")
-                    sys.stdout.flush()
+                sys.stdout.write(f"\rFPS: {fps}")
+                sys.stdout.flush()
 
-            output.sendFps(averageFps.average())
+            # Send processed data to the output
+            output.sendData(OutputData(DetectionData(poseDetection, start), frame, averageFps.average()))
 
             if config.RUN_ONCE:
                 break
@@ -93,34 +82,37 @@ class DetectionData:
         self.poseData = poseData
         self.timestamp = timestamp
 
+class OutputData:
+    detection: Optional[DetectionData]
+    frame: Optional[Any]
+    fps: Optional[float]
+
+    def __init__(self, detection, frame, fps):
+        self.detection = detection
+        self.frame = frame
+        self.fps = fps
+
 class Output:
     thread: Thread
-    detectionQueue = queue.Queue()
-    fpsQueue = queue.Queue()
-    frameQueue = queue.Queue()
+    inQueue = queue.Queue()
     stop: Event
 
     def __init__(self, configPaths: ConfigPaths):
         self.stop = Event()
-        self.thread = Thread(target=runOutput, args=(self.stop, configPaths, self.detectionQueue, self.fpsQueue, self.frameQueue,), name="Vision Output", daemon=True)
+        self.thread = Thread(target=runOutput, args=(self.stop, configPaths, self.inQueue,), name="Vision Output", daemon=True)
         self.thread.start()
 
-    def sendPoseDetection(self, detection: Optional[DetectionData]):
-        if detection is not None:
-            self.detectionQueue.put(detection)
-
-    def sendFrame(self, frame: Optional[Any]):
-        if frame is not None:
-            self.frameQueue.put(frame)
-
-    def sendFps(self, fps: float):
-        self.fpsQueue.put(fps)
+    def sendData(self, data: OutputData):
+        # If they are all none, there is no need to put anything in the queue
+        if data.detection is None and data.frame is None and data.fps is None:
+            return
+        self.inQueue.put(data)
 
     def stop(self):
         self.stop.set()
         self.thread.join()
 
-def runOutput(stop: Event, configPaths: ConfigPaths, detectionQueue: queue.Queue, fpsQueue: queue.Queue, frameQueue: queue.Queue):
+def runOutput(stop: Event, configPaths: ConfigPaths, inQueue: queue.Queue):
     config = WorbotsConfig(configPaths)
     network = WorbotsTables(configPaths)
     CameraServer.enableLogging()
@@ -129,34 +121,26 @@ def runOutput(stop: Event, configPaths: ConfigPaths, detectionQueue: queue.Queue
     network.sendConfig()
     
     while not stop.is_set():
-        # Pose detection
         try:
-            detection: DetectionData = detectionQueue.get(timeout=0.001)
+            data: OutputData = inQueue.get(timeout=0.001)
         except Empty:
-            detection = None
+            data = None
+            continue
 
-        if config.SEND_POSE_DATA and detection is not None:
-            network.sendPoseDetection(detection.poseData, detection.timestamp)
+        # Pose detection
+        if config.SEND_POSE_DATA and data.detection is not None:
+            network.sendPoseDetection(data.detection.poseData, data.detection.timestamp)
 
         # Camera frames
-        try:
-            frame: Any = frameQueue.get(timeout=0.001)
-        except Empty:
-            frame = None
-
-        if frame is not None:
-            output.putFrame(frame)
+        if data.frame is not None:
+            output.putFrame(data.frame)
             if config.SHOW_IMAGE:
-                cv2.imshow('image', frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+                cv2.imshow('image', data.frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
         # FPS
-        try:
-            fps: float = fpsQueue.get(timeout=0.001)
-            network.sendFps(fps)
-        except Empty:
-            pass
+        if data.fps is not None:
+            network.sendFps(data.fps)
 
         if config.RUN_ONCE:
             break

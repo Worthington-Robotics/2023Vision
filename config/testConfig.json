@@ -10,8 +10,9 @@
 	"UseGStreamer": false,
 	"RunOnce": false,
 	"ProcessVideo": true,
-	"SendPoseData": false,
-	"ShowImage": true,
+	"SendPoseData": true,
+	"ShowImage": false,
 	"PrintFPS": true,
-	"Profile": false
+	"Profile": false,
+	"UseGPU": true
 }

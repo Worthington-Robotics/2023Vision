@@ -31,6 +31,7 @@ class WorbotsConfig:
     # Whether to convert the video to black and white.
     # Should be disabled for grayscale cameras
     MAKE_BW = False
+    USE_GPU = False
 
     def __new__(cls, paths: ConfigPaths):
         with open(paths.path, "r") as read_file:
@@ -84,6 +85,9 @@ class WorbotsConfig:
             val = data.get("MakeBW")
             if val is not None:
                 cls.MAKE_BW = val
+            val = data.get("UseGPU")
+            if val is not None:
+                cls.USE_GPU = val
         return super(WorbotsConfig, cls).__new__(cls)
 
     def __init__(self, paths: ConfigPaths):
