@@ -69,7 +69,7 @@ class ThreadCamera:
             print("Initializing camera with GStreamer...")
             cmd = ""
             if self.worConfig.USE_GPU:
-                cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegparse ! nvv4l2decoder ! nvvidconv flip-method=1 ! video/x-raw,format=I420 ! appsink max-buffers=1 drop=1"
+                cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegparse ! nvv4l2decoder ! nvvidconv ! video/x-raw,format=I420 ! appsink max-buffers=1 drop=1"
             else:
                 cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} always-copy=false ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=I420 ! appsink drop=1"
             print("GStreamer command: " + cmd)
