@@ -162,6 +162,8 @@ class WorbotsVision:
                 index = 0
                 for id in ids:
                     pose = self.poseCalc.getPose3dFromTagID(id)
+                    if pose is None:
+                        return (None, None)
                     corner0 = pose + Transform3d((Translation3d(0, self.tag_size/2.0, -self.tag_size/2.0)), Rotation3d())
                     corner1 = pose + Transform3d((Translation3d(0, -self.tag_size/2.0, -self.tag_size/2.0)), Rotation3d())
                     corner2 = pose + Transform3d((Translation3d(0, -self.tag_size/2.0, self.tag_size/2.0)), Rotation3d())

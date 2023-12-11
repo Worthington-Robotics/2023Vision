@@ -13,5 +13,6 @@
 	"SendPoseData": true,
 	"ShowImage": true,
 	"PrintFPS": true,
-	"Profile": false
+	"Profile": false,
+	"UseExactTimestamps": true
 }

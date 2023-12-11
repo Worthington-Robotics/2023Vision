@@ -1,6 +1,6 @@
 from queue import Queue, Empty, Full
 import time
-from typing import Any, Union, Optional
+from typing import Any, Optional
 import cv2
 from cProfile import Profile
 from threading import Thread, Event
@@ -62,6 +62,8 @@ def runCameraThread(stop: Event, configPaths: ConfigPaths, out: Queue):
 class ThreadCamera:
     worConfig: WorbotsConfig
     cap: cv2.VideoCapture
+    # Used for offsetting timestamps from the camera
+    startTime: float
 
     def __init__(self, configPaths: ConfigPaths):
         self.worConfig = WorbotsConfig(configPaths)
@@ -71,13 +73,15 @@ class ThreadCamera:
             if self.worConfig.USE_GPU:
                 cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegparse ! nvv4l2decoder ! nvvidconv ! video/x-raw,format=I420 ! appsink max-buffers=1 drop=1"
             else:
-                cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} always-copy=false ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=I420 ! appsink drop=1"
+                cmd = f"gst-launch-1.0 -v v4l2src device=/dev/video{self.worConfig.CAMERA_ID} always-copy=false ! image/jpeg, width={self.worConfig.RES_W}, height={self.worConfig.RES_H}, format=MJPG, framerate={self.worConfig.CAM_FPS}/1 ! jpegdec ! videoconvert ! video/x-raw,format=BGR ! appsink max-buffers=1 drop=1"
             print("GStreamer command: " + cmd)
 
             self.cap = cv2.VideoCapture(cmd, cv2.CAP_GSTREAMER)
+            self.startTime = time.time()
         else:
             print("Initializing camera with default backend...")
             self.cap = cv2.VideoCapture(0)
+            self.startTime = time.time()
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.worConfig.RES_H)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.worConfig.RES_W)
             # self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
@@ -94,10 +98,11 @@ class ThreadCamera:
         ret, frame = self.cap.read()
         if self.worConfig.USE_EXACT_TIMESTAMPS:
             timestamp = self.cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+            timestamp += self.startTime
         else:
             timestamp = time.time()
         if ret:
-            if self.worConfig.USE_GPU and self.worConfig.USE_GSTREAMER:
+            if self.worConfig.USE_GSTREAMER:
                 frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_I420)
             return TimedFrame(frame, timestamp)
         else:
